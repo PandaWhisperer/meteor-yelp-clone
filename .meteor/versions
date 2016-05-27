@@ -13,6 +13,7 @@ caching-compiler@1.0.4
 caching-html-compiler@1.0.6
 callback-hook@1.0.8
 check@1.2.1
+coffeescript@1.0.17
 ddp@1.2.5
 ddp-client@1.2.7
 ddp-common@1.2.5
@@ -50,6 +51,11 @@ natestrauser:font-awesome@4.6.3
 npm-mongo@1.4.43
 observe-sequence@1.0.11
 ordered-dict@1.0.7
+practicalmeteor:chai@2.1.0_1
+practicalmeteor:loglevel@1.2.0_2
+practicalmeteor:mocha@2.4.5_2
+practicalmeteor:mocha-core@0.1.4
+practicalmeteor:sinon@1.14.1_2
 promise@0.6.7
 random@1.0.9
 reactive-var@1.0.9
@@ -62,6 +68,7 @@ standard-minifier-css@1.0.6
 standard-minifier-js@1.0.6
 templating@1.1.9
 templating-tools@1.0.4
+tmeasday:test-reporter-helpers@0.2.1
 tracker@1.0.13
 ui@1.0.11
 underscore@1.0.8
