@@ -46,6 +46,7 @@ modules@0.6.1
 modules-runtime@0.6.3
 mongo@1.1.7
 mongo-id@1.0.4
+natestrauser:font-awesome@4.6.3
 npm-mongo@1.4.43
 observe-sequence@1.0.11
 ordered-dict@1.0.7
