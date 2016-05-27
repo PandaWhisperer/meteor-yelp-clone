@@ -1,5 +1,17 @@
 # Meteor Tutorial: Building a React-Yelp-Clone Clone
 
+## Motivation
+
+[Someone][wuworkshop] over at [CodeBuddies][cb]' Slack Channel recently linked me to [Fullstack.io][fullstack]'s [React tutorial][react-tutorial]. Initially I was excited, as learning React has been on my to-do list for a while now. But as I started following along, I quickly got frustrated by how much work was involved. After half an hour, I still hadn't written a single line of actual app code, but I had already installed about 20 NPM packages, and written copious amounts of arcane configuration files.
+
+Long story short, after scrolling forward for a bit and realizing I would still be spending at least another 20 minutes on my setup, I got impatient and decided to do this project in Meteor instead. This is the story of what happened next.
+
+[wuworkshop]: https://github.com/wuworkshop
+[cb]: http://codebuddies.org
+[fullstack]: http://www.fullstack.io
+[react-tutorial]: https://www.fullstackreact.com/articles/react-tutorial-cloning-yelp/
+[react-yelp-clone]: https://github.com/fullstackreact/react-yelp-clone
+
 ## Creating the app
 
 First, we'll ask Meteor to create a new project for us. This couldn't be any simpler:
