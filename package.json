@@ -2,7 +2,7 @@
   "name": "meteor-yelp-clone",
   "private": true,
   "scripts": {
-    "start": "meteor run",
+    "start:dev": "meteor run --settings=settings/development.json",
     "test": "meteor test --driver-package=practicalmeteor:mocha --port 3030"
   },
   "dependencies": {

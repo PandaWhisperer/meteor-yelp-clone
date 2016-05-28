@@ -4,7 +4,9 @@ import { Template } from 'meteor/templating';
 import './map.html';
 
 Template.map.onRendered(function() {
-  GoogleMaps.load();
+  GoogleMaps.load({
+    key: Meteor.settings.public.googleApiKey
+  });
 })
 
 Template.map.helpers({
