@@ -148,7 +148,7 @@ Let's see how the React folks are doing, shall we? There's probably still config
 
 ## Building a Google Maps Component
 
-So, over at Fullstack React, they are using a pre-built React component, so I'm sure it won't be considered cheating if we do the same. We'll use the [`dburles:google-maps`][meteor-google-maps] package, which can be installed by running
+So, over at Fullstack React, [they are using a pre-built React component][react-google-maps], so I'm sure it won't be considered cheating if we do the same. We'll use the [`dburles:google-maps`][meteor-google-maps] package, which can be installed by running
 
     meteor add dburles:google-maps
 
@@ -249,6 +249,44 @@ Here's what you should be seeing now in your browser:
 
 ![](images/meteor-google-map.png)
 
+[react-google-maps]:https://www.fullstackreact.com/articles/react-tutorial-cloning-yelp/#routing-to-maps
 [meteor-google-maps]: https://github.com/dburles/meteor-google-maps
 [meteor-blaze-components]: http://guide.meteor.com/blaze.html#reusable-components
 [meteor-settings]: http://docs.meteor.com/api/core.html#Meteor-settings
+
+## Writing a Test for the Map Component
+
+So, we've finally achieved some significant functionality. Time to write a test! Again, we'll take a [page from the Meteor Guide][meteor-unit-test] and implement a simple unit test for our component. Before we do this, we'll need to add the [`imports/ui/test-helpers.js`][meteor-test-helper] mentioned in that guide. I won't reproduce the file here, since you can find it at the link above.
+
+Now we can go ahead and write the test in `imports/ui/components/map/client/map.tests.js` as follows:
+
+	/* eslint-env mocha */
+	/* eslint-disable func-names, prefer-arrow-callback */
+	
+	import { chai } from 'meteor/practicalmeteor:chai';
+	import { Template } from 'meteor/templating';
+	import { $ } from 'meteor/jquery';
+	
+	import { withRenderedTemplate } from '../../../test-helpers.js';
+	import '../map.js';
+	
+	describe('Map component', function () {
+	  it('renders correctly with simple data', function () {
+	    const center = { lat: -37.8136, lng: 144.9631 };
+	    const zoom = 8;
+	    const data = { center, zoom };
+	
+	    withRenderedTemplate('map', data, el => {
+	      chai.assert.equal($(el).find('.map-canvas').length, 1);
+	    });
+	  });
+	});
+
+If you did everything right, the test runner should now show a passing test:
+
+![](images/meteor-map-test.png)
+
+[meteor-unit-test]: http://guide.meteor.com/testing.html#simple-unit-test
+[meteor-test-helper]: https://github.com/meteor/todos/blob/master/imports/ui/test-helpers.js
+
+To be continued...
