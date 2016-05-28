@@ -138,3 +138,112 @@ We'll also have to delete the default `client/main.html`, because otherwise, Met
 If you did everything correctly, your browser should now show this:
 
 ![](images/meteor-routing-home.png)
+
+Let's see how the React folks are doing, shall we? There's probably still configuring the router. Let's skip ahead for a bit and do something more fun. Looks like they're going to be working on the Google Maps integration next.
+
+## Building a Google Maps Component
+
+So, over at Fullstack React, they are using a pre-built React component, so I'm sure it won't be considered cheating if we do the same. We'll use the [`dburles:google-maps`][meteor-google-maps] package, which can be installed by running
+
+    meteor add dburles:google-maps
+
+Now, let's create a [Blaze component][meteor-blaze-components] to use that map. First, we'll need a new directory to hold the files:
+
+	mkdir imports/ui/components/map
+	
+The component has two parts: a (HTML) template and some JavaScript. First, here's the template, `imports/ui/components/map/map.html`:
+
+	<template name="map">
+      <div class="map-container">
+        {{> googleMap name="map" options=mapOptions}}
+      </div>
+    </template>
+
+And here's the JavaScript part, `imports/ui/components/map/map.js`:
+
+	import { Meteor } from 'meteor/meteor';
+	import { Template } from 'meteor/templating';
+	
+	import './template.html';
+	
+	Template.map.onRendered(function() {
+	  GoogleMaps.load({
+	    key: Meteor.settings.public.googleApiKey
+	  });
+	})
+	
+	Template.map.helpers({
+	  mapOptions() {
+	    const { center, zoom } = Template.currentData();
+	
+	    if (GoogleMaps.loaded()) {
+	      return {
+	        center: new google.maps.LatLng(center.lat, center.lng),
+	        zoom: zoom
+	      };
+	    }
+	  }
+	})
+
+Here, we are using [Meteor.settings][meteor-settings] to inject our Google API key into the component. This is Meteor's way of storing configuration data. In order for this to work, we'll need to create a settings file, and then point the server to that file when we start it. Let's do that now.
+
+First, here's the settings file, `settings/development.json`:
+
+	{
+	  "public": {
+	    "googleApiKey": "YOUR_GOOGLE_API_KEY_HERE"
+	  }
+	}
+
+Now, in order to have the server load this file on startup, we need to run it with the `--settings=settings/development.json` option. Since we don't want to have to remember to do that every time, we'll just put this into the `scripts` section of our `package.json`
+
+    "start:dev": "meteor run --settings=settings/development.json"
+    
+Now we'll have to stop our currently running server and restart it again by typing
+
+    npm run start:dev
+    
+And we're off to the races again. Now, all we have left to do is use our new component. First, we will add it to our `imports/startup/client/index.js` file so it is available in our app:
+
+	// components
+	import '../../ui/components/map/map.js';
+
+Then, we'll add it to our "home" template by modifiying it as follows:
+
+	<template name="home">
+	  Hello from the import side
+	
+	  {{> map center=mapCenter zoom=defaultZoom}}
+	</template>
+
+Finally, we need to add some helpers for this template, to pass in the map center and the default zoom level. We need to create a new file, `imports/ui/pages/home.js` with the following content:
+
+	import { Template } from 'meteor/templating';
+	
+	import './home.html';
+	
+	Template.home.helpers({
+	  mapCenter() {
+	    return { lat: -37.8136, lng: 144.9631 }
+	  },
+	
+	  defaultZoom() {
+	    return 8
+	  }
+	})
+
+Now, back in `imports/startup/client/index.js`, we simply change the line
+
+    import '../../ui/pages/home.html';
+
+to end in `.js` instead of `.html`:
+
+	import '../../ui/pages/home.js';
+
+Here's what you should be seeing now in your browser:
+
+![](images/meteor-google-map.png)
+
+[meteor-google-maps]: https://github.com/dburles/meteor-google-maps
+[meteor-blaze-components]: http://guide.meteor.com/blaze.html#reusable-components
+[meteor-settings]: http://docs.meteor.com/api/core.html#Meteor-settings
