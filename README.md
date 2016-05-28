@@ -200,9 +200,16 @@ First, here's the settings file, `settings/development.json`:
 	  }
 	}
 
-Now, in order to have the server load this file on startup, we need to run it with the `--settings=settings/development.json` option. Since we don't want to have to remember to do that every time, we'll just put this into the `scripts` section of our `package.json`
+Now, in order to have the server load this file on startup, we need to run it with the `--settings=settings/development.json` option. Since we don't want to have to remember to do that every time, we'll just put this into the `scripts` section of our `package.json`.
 
-    "start:dev": "meteor run --settings=settings/development.json"
+    "scripts": {
+	  "start:dev": "meteor run --settings=settings/development.json",
+	  "test": "meteor test --settings=settings/test.json --driver-package=practicalmeteor:mocha --port 3030"
+	}
+
+As you can see, we also added this option to our `npm test` script, so that our tests have access to the settings as well. For now, the `settings/test.json` file is simply a copy of `settings/development.json`. 
+
+	cp settings/development.json settings/test.json
     
 Now we'll have to stop our currently running server and restart it again by typing
 
