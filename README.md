@@ -1,10 +1,12 @@
 # Meteor Tutorial: Building a React-Yelp-Clone Clone
 
+**NOTE:** This tutorial is a work-in-progress. This notice will be removed when it's done.
+
 ## Motivation
 
 [Someone][wuworkshop] over at [CodeBuddies][cb]' Slack Channel recently linked me to [Fullstack.io][fullstack]'s [React tutorial][react-tutorial]. Initially I was excited, as learning React has been on my to-do list for a while now. But as I started following along, I quickly got frustrated by how much work was involved. After half an hour, I still hadn't written a single line of actual app code, but I had already installed about 20 NPM packages, and written copious amounts of arcane configuration files.
 
-Long story short, after scrolling forward for a bit and realizing I would still be spending at least another 20 minutes on my setup, I got impatient and decided to do this project in [Meteor][https://www.meteor.com/] instead. This is the story of what happened next.
+Long story short, after scrolling forward for a bit and realizing I would still be spending at least another 20 minutes on my setup, I got impatient and decided to do this project in [Meteor][meteor] instead. This is the story of what happened next.
 
 [wuworkshop]: https://github.com/wuworkshop
 [cb]: http://codebuddies.org
@@ -59,14 +61,17 @@ However, we have nothing to test yet, because unlike React, we don't need a dedi
       "test": "meteor test --driver-package=practicalmeteor:mocha --port 3030"
     }
 
-The `meteor test` command needs us to specify the driver package (there are [several different ones available][TBD]). Since the `practicalmeteor:mocha` package includes an HTML test runner that will display all of our tests in a browser, it actually starts a full Meteor server. Because our app is already running on port 3000, we'll have to tell it to run on a different port.
+The `meteor test` command needs us to specify the driver package (there are [several different ones available][meteor-test-driver-packages]). Since the [`practicalmeteor:mocha`][practicalmeteor:mocha] package includes an HTML test runner that will display all of our tests in a browser, it actually starts a full Meteor server. Because our app is already running on port 3000, we'll have to tell it to run on a different port.
 
 ![The practicalmeteor:mocha test runner](images/meteor-test-runner.png)
 
 We don't have any tests yet (because there isn't really anything to test), but that will change soon.
 And while the React folks are still tweaking their `karma.conf.js`, we're off to the next step. Meteor: 3 - React: still 0.
 
-## Creating the File Structure
+[meteor-test-driver-packages]: http://guide.meteor.com/testing.html#driver-packages
+[practicalmeteor:mocha]: https://atmospherejs.com/practicalmeteor/mocha
+
+## Creating the Directory Structure
 
 Now before we start building our actual app, lets take a moment and create the directory structure we'll be using. For this article, I decided to go with the [recommendation][meteor-dir-structure] in the [official Meteor Guide][meteor-guide]. This means we will be using [ES2015 modules][es2015-modules], and most of our application code will live in various subdirectories of the the `imports` directory.
 
@@ -112,7 +117,7 @@ This creates a route named "home", which renders a template named "home" within 
       </footer>
     </template>
 
-And now here's our "home" template, `imports/ui/pages/home.html`:
+And now here's our "home" template, `imports/ui/pages/home.html` (don't worry about the missing templates for header and footer for now, we'll be adding those later):
 
     <template name="home">
       Hello from the import side
