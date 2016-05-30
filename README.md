@@ -687,7 +687,61 @@ Note we're making use of [Mocha's support for asynchronous code][mocha-async] he
 
 ![](images/meteor-test-placesearch.png)
 
-Looks like we're good to go.
+Looks like we're good to go. Now before we move on to the next step, let's just clean up the code a little bit. As you may have noticed, the two pairs of tests we wrote look awefully similar. 
+
+From the first pair, we can extract the following helper (which we'll store in `imports/ui/test-helpers.js`:
+
+```javascript
+export const ensureElement = function ensureElement(template, data, selector, count=1) {
+  withRenderedTemplate(template, data, el => {
+    chai.assert.equal($(el).find(selector).length, count);
+  });
+};
+```
+
+With this, we can write the first pair of tests as follows:
+
+```javascript
+  it('has a "keyword" input', function() {
+    ensureElement('PlaceSearch', {}, 'input[name=keyword]');
+  });
+
+  it('has a "type" dropdown', function() {
+    ensureElement('PlaceSearch', {}, 'select[name=type]');
+  });
+```
+
+The next pair is a bit more difficult. Here, we need to pass in a callback that will run the final assertion to make the test pass (again, using Mocha's support for asynchronous code). The helper simply merges the callback into the data, renders the template, and triggers the event that will kick off the callback:
+
+```javascript
+export const ensureCallbackOnElementChange = function ensureCallbackOnElementChange(template, data, selector, callback, value) {
+  data = Object.assign(data, callback);
+
+  withRenderedTemplate(template, data, el => {
+    $(el).find(selector).val(value).trigger('change');
+  });
+};
+```
+
+With this, we can rewrite the second pair of tests like this:
+
+```javascript
+  it('calls "onQueryChanged" when keyword has changed', function(done) {
+    ensureCallbackOnElementChange('PlaceSearch', {}, 'input[name=keyword]', { onQueryChanged(query) {
+      chai.assert.equal(query.keyword, 'test');
+      done();
+    }}, 'test');
+  });
+
+  it('calls "onQueryChanged" when type has changed', function(done) {
+    ensureCallbackOnElementChange('PlaceSearch', {}, 'select[name=type]', { onQueryChanged(query) {
+      chai.assert.equal(query.type, 'airport');
+      done();
+    }}, 'airport');
+  });
+```
+
+*Much* better.
 
 [PlaceSearch.tests.js]: imports/ui/components/PlaceSearch/client/PlaceSearch.tests.js
 [mocha-async]: https://mochajs.org/#asynchronous-code
