@@ -746,4 +746,60 @@ With this, we can rewrite the second pair of tests like this:
 [PlaceSearch.tests.js]: imports/ui/components/PlaceSearch/client/PlaceSearch.tests.js
 [mocha-async]: https://mochajs.org/#asynchronous-code
 
+## Using the Place Search Component in our App
+
+Okay, time to actually use our brand new component! First, we'll add it to our `imports/startup/client/index.js` to ensure it is loaded and available to our app:
+
+```javascript
+// components
+import '../../ui/components/Map/Map.js';
+import '../../ui/components/PlaceSearch/PlaceSearch.js';
+```
+
+Then, we'll change our `imports/ui/pages/home.html` template to include the new component:
+
+```handlebars
+<template name="home">
+  Search for something:
+
+  {{> PlaceSearch onQueryChanged=queryChanged }}
+  {{> Map center=mapCenter zoom=defaultZoom query=query}}
+</template>
+```
+
+Let's think this through for a second: obviously, we'll need a callback here, so we can receive updates when the query parameters have changed. But when that is the case, we need the `query` helpers value to update automatically, so that the map component can update itself. Sounds like another job for our trusty friend, `ReactiveVar`:
+
+```javascript
+import { ReactiveVar } from 'meteor/reactive-var';
+
+Template.home.onCreated(function() {
+  this.query = new ReactiveVar({});
+});
+```
+
+Now, we just update our `query` helper, and add a `queryChanged` helper as follows:
+
+```javascript
+ query() {
+   return Template.instance().query.get();
+ },
+ 
+ queryChanged() {
+   const instance = Template.instance();
+   return (query) => { instance.query.set(query); }
+ }
+```
+
+Instead of a static value, `query` now simply returns the contents of the `this.query` reactive variable, so its value will automatically change when the query changes. The `queryChanged` helper, on the other hand, returns a function that will *update* said reactive variable. 
+
+Wait for the app to reload again, and we should see our new component rendered above the map:
+
+![](images/meteor-placesearch.png)
+
+Now, make a change in the place search component, and you should see the markers update:
+
+![](images/meteor-placesearch-restaurant.png)
+
+Violà – that concludes our little excursion. 
+
 To be continued...

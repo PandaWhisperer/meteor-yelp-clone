@@ -1,5 +1,6 @@
 <template name="home">
-  Hello from the import side
+  Search for something:
 
+  {{> PlaceSearch onQueryChanged=queryChanged }}
   {{> Map center=mapCenter zoom=defaultZoom query=query}}
 </template>
