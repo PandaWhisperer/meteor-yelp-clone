@@ -1,0 +1,9 @@
+<template name="PlaceSearch">
+  <input name="keyword" placeholder="Keyword">
+  <select name="type">
+    <option value="">-- Select Type --</option>
+    {{#each placeTypes}}
+      <option value={{type}}>{{display}}</option>
+    {{/each}}
+  </select>
+</template>

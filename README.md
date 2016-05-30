@@ -557,4 +557,80 @@ Now the app should load and behave just like before, although it may show slight
 [meteor-template-params]: http://guide.meteor.com/blaze.html#inclusion
 [meteor-template-currentData]: http://docs.meteor.com/api/templates.html#Template-currentData
 
+## Excursion: Creating a Place Search Component
+
+At this point, I had wanted to write a test case for the place search callback behavior, but I had difficulties getting that to work. So, while the FullStack guys are moving ahead with building header and sidbar components, I decided to take a bit of a detour and make the map more interactive first, by adding a component to allow me to perform arbitrary place searches on the map.
+
+Here's the idea: I want a text input field to search for keywords, and a dropdown with all the place types to narrow results by category. And in order to practice building reusable components (and exchanging data between them), I want this to be a component as well.
+
+Let's start with the template, `imports/ui/components/PlaceSearch/PlaceSearch.html`:
+
+```handlebars
+<template name="PlaceSearch">
+  <input name="keyword" placeholder="Keyword">
+  <select name="type">
+    <option value="">-- Select Type --</option>
+    {{#each placeTypes}}
+      <option value={{type}}>{{display}}</option>
+    {{/each}}
+  </select>
+</template>
+```
+
+Here we can see the text input and the dropdown. The latter obviously will require a `placeTypes` helper to provide a list of place types. The [full list is available here][google-place-types]. I simply copied and pasted it from Google's Developer documentation and converted it to JSON by hand. You can see the [full JSON file here][PlaceTypes.json]. Note that all of these are lower case and contain underscores. Some of them are followed by `(*)`, which means that according to the Google docs, they are deprecated and will be removed on February 16, 2017. I left these in for now, but we'll have to treat them specially, as we'll see in just a minute. 
+
+Let's start with our template helpers (in `imports/ui/components/PlaceSearch/PlaceSearch.js`):
+
+```javascript
+import { Template } from 'meteor/templating';
+import { humanize, titleize } from 'underscore.string';
+import PlaceTypes from './placeTypes.json';
+
+import './PlaceSearch.html';
+
+Template.PlaceSearch.helpers({
+  placeTypes() {
+    return PlaceTypes.map((type) => {
+      return { type, display: titleize( humanize(type) ) };
+    });
+  }
+});
+```
+
+Our `placeTypes` helper simply iterates over the entire list of place types and turns them into objects with a `type` and a `display` property. The latter is automatically computed from the former, using two functions, `humanize` and `titleize` from a package called [`underscore.string`][underscore.string]. These get rid of the underscores and capitalize every word, respectively.
+
+Sure, I could have simply used a regular expression here, but this gives us a chance to try out Meteor's new NPM integration. Also, this code is arguably much easier to read. Since version 1.3, [Meteor has full support for NPM packages][meteor-npm-support]. All we need to do is install the package using the following command:
+
+    meteor npm install --save underscore.string
+
+> **NOTE**
+> 
+> If you have Node.js installed separetely from Meteor, you can also simply run `npm install --save underscore.string`.
+
+Now, similar to our map component, we would like this component to run a callback whenever its internal state (in this case, the values of the form fields) changes. So lets hook that up with an event handler now:
+
+```javascript
+Template.PlaceSearch.events({
+  'change input, change select'(event, instance) {
+    const { onQueryChanged } = Template.currentData();
+    const query = {
+      keyword: instance.$('input[name=keyword]').val(),
+      type:    instance.$('select[name=type]').val()
+    };
+
+    if (typeof onQueryChanged === 'function') {
+      onQueryChanged(query);
+    }
+  }
+});
+```
+
+This is pretty similar to what we've done in the map component, the only new thing is using jQuery to extract the values from the form fields. Note that we're using `instance.$` to scope the lookup to the current template instance, [as recommended by the Meteor guide][meteor-scope-jquery].
+
+[google-place-types]: https://developers.google.com/places/supported_types#table1
+[PlaceTypes.json]: imports/ui/components/PlaceSearch/PlaceTypes.json
+[underscore.string]: http://epeli.github.io/underscore.string/
+[meteor-npm-support]: http://guide.meteor.com/using-npm-packages.html
+[meteor-scope-jquery]: http://guide.meteor.com/blaze.html#scope-dom-lookups-to-instance
+
 To be continued...

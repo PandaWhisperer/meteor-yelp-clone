@@ -6,6 +6,7 @@
     "test": "meteor test --settings=settings/test.json --driver-package=practicalmeteor:mocha --port 3030"
   },
   "dependencies": {
-    "meteor-node-stubs": "~0.2.0"
+    "meteor-node-stubs": "~0.2.0",
+    "underscore.string": "^3.3.4"
   }
 }
