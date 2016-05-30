@@ -36,7 +36,7 @@ The score so far: Meteor: 1, React: 0.
 
 Again, this is pretty simple. There's already a number of prebuilt packages available, so all we have to do here is run
 
-    meteor add natestrauser:font-awesome
+    meteor add fortawesome:fontawesome
 
 and we're good to go. We don't even need to restart the server, it automatically detects the new package and loads it for us. Awesome.
 
