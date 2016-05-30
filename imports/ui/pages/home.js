@@ -8,6 +8,10 @@ Template.home.helpers({
   },
 
   defaultZoom() {
-    return 8
+    return 15
+  },
+
+  query() {
+    return { radius: '500', types: ['cafe'] }
   }
 })

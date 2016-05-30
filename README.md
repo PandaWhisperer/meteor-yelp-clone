@@ -300,4 +300,154 @@ If you did everything right, the test runner should now show a passing test:
 [meteor-unit-test]: http://guide.meteor.com/testing.html#simple-unit-test
 [meteor-test-helper]: https://github.com/meteor/todos/blob/master/imports/ui/test-helpers.js
 
+## Adding Place Search to our Map Component
+
+Next, we want our Map component to be able to search for and display places matching a certain query. Since we want to keep all the Google Maps handling code local to our component (to ensure proper encapsulation), we need to implement this functionality *inside* the component.
+
+We'll start by changing the `onRendered` callback in our Map component to load the places API alongside with Google Maps. We'll also store the `map` object that the API returns in a [`ReactiveVar`][meteor-reactive-var] that's scoped to the template:
+
+    import { ReactiveVar } from 'meteor/reactive-var';
+    
+    Template.Map.onCreated(function () {
+	  this.map = new ReactiveVar();
+	})
+
+	Template.Map.onRendered(function() {
+	  GoogleMaps.load({
+	    key: Meteor.settings.public.googleApiKey,
+	    libraries: 'places'
+	  });
+	
+	  GoogleMaps.ready('map', (map) => {
+	    this.map.set(map);
+	  });
+	})
+
+This ensures that whenever the `GoogleMaps.ready()` callback is called, the `map` instance is attached to the template, and anything that depends on it will automatically be re-computed thanks to [Meteor's reactivity tracker][meteor-tracker].
+
+Now, we'll create a helper function to let us run an arbitrary query against a given Google Maps object (this will be a private function, so just drop it at the bottom of `Map.js`):
+	
+	function searchNearby(map, query) {
+	  const service = new google.maps.places.PlacesService(map.instance);
+	
+	  service.nearbySearch(query, (results, status, pagination) => {
+	    if (status == google.maps.places.PlacesServiceStatus.OK) {
+	      console.log(results)
+	    } else {
+	      console.log(status)
+	    }
+	  })
+	}
+	
+As you can see, this function creates a new `PlaceService` instance and runs the query against that. When the results are ready, a callback is called that prints them out to the terminal. We can immediately test this by adding the following code to the bottom of our `onCreated` callback:
+
+	this.autorun(() => {
+	  const map = this.map.get();
+	  const query = { 
+		center: map.options.center,
+		radius: 500,
+		type: 'cafe'
+      };
+	  if (map) {
+	    searchNearby(map, query);
+	  }
+	})
+	
+Using `this.autorun()` ensures that Meteor will automatically detect any reactive dependencies used in the callback (that's why we made `this.map` a `ReactiveVar`) and re-run the callback when those dependencies change.
+
+Once you saves this change, you should be able to see your Meteor app reload automatically, and if you open your browser's JavaScript console, you'll see the results of the place search logged there:
+
+![](images/placesearch-results-console.png)
+
+[meteor-reactive-var]: http://docs.meteor.com/api/reactive-var.html
+[meteor-tracker]: http://docs.meteor.com/api/tracker.html
+
+## Adding Markers to the Map
+
+Now that we have a basic place search functionality going, it would be cool if our app was able to display the results on a map, instead of printing them to the console (where no user would ever bother to look). Let's do that next.
+
+First, we'll create a couple more helper functions to work with markers (we'll add them to the end of our `imports/ui/components/Map/Map.js` file):
+
+	// Creates a marker from a place, but doesn't add it to a map
+	function createMarker(place) {
+	  return new google.maps.Marker({
+	    position: place.geometry.location,
+	    title: place.name
+	  });
+	}
+	
+	// Adds a marker to the given map
+	function addMarker(map, marker) {
+	  if (!(marker instanceof google.maps.Marker)) {
+	    marker = createMarker(marker);
+	  }
+	  marker.setMap(map.instance);
+	
+	  return marker;
+	}
+	
+	// Removes a marker from a map
+	function removeMarker(marker) {
+	  marker.setMap(null);
+	}
+
+It's worthwile to note that the `addMarker` function is flexible and will accept a place object instead of a marker as its second argument for convenience. 
+
+Now, we want our `searchNearby` function to create place markers whenever there are results available. However, in the interest of not letting this function become too complex, we'll handle this a bit differently. First, we'll add another `ReactiveVar` to our component. This one will store the place results. 
+
+	Template.Map.onCreated(function () {
+	  this.map = new ReactiveVar();
+	  this.places = new ReactiveVar([]);
+	  
+	  this.autorun(() => { /* ... */ });
+	})
+	
+Next, we'll update the `searchNearby` function to store the results in this variable. We'll simply pass in the `ReactiveVar` as a third parameter, and have the function update its contents like this:
+
+	function searchNearby(map, query, places) {
+	  const service = new google.maps.places.PlacesService(map.instance);
+	
+	  service.nearbySearch(query, (results, status, pagination) => {
+	    if (status == google.maps.places.PlacesServiceStatus.OK) {
+	      console.log(results)
+	      places.set(results)
+	    } else {
+	      console.log(status)
+	    }
+	  })
+	}
+
+Now, we change our `this.autorun()` callback to pass this parameter along:
+
+      if (map) {
+	    searchNearby(map, query, this.places);
+	  }
+
+> **NOTE**
+>
+> It it important to realize that even though `this.places` is a `ReactiveVar`, simply passing it along as a reference to `searchNearby` does NOT cause the `autorun` callback to be re-evaluated. A dependency is only created if we call `.get()` on that variable. Otherwise, we would be creating an endless loop here.
+
+Next, we'll want to create place markers each there are new place results. For this, we'll add another `this.autorun()` block to our `onCreated` callback:
+	
+	  // automatically add markers to map when places have changed
+	  let markers = [];
+	  this.autorun(() => {
+	    const map = this.map.get();
+	    const places = this.places.get();
+	    // remove old markers from map before adding new ones
+	    markers.forEach((marker) => removeMarker(marker));
+	    markers = places.map((place) => addMarker(map, place));
+	  })
+	  
+This block depends on both the `this.map` and the `this.places` reactive vars (it is helpful to declare them at the top of the block so the dependencies are immediately obvious). Since we'll have to remove the old markers before adding new ones (otherwise, the old ones will stay around forever, crowding up the map), we need to store them somewhere. We use a local variable called `markers` for this purpose, whose contents we overwrite each time the block is re-evaluated. Note that this variable has to be declared *outside* the callback. 
+
+If you did everything right, when your app has reloaded, you should now see the map being populated with markers:
+
+![](images/meteor-placesearch-basic.png)
+
+> **NOTE**
+>
+> You'll noticed I've changed the default zoom setting here, so we can actually tell the different markers apart. Since we did a radius search, Google will prioritize places that are closes to the center of the map to those that are further away. The zoom level in this picture is set to `15`, which can be changed in `imports/ui/pages/home.js`.
+	
+
 To be continued...
