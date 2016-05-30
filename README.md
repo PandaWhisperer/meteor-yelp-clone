@@ -633,4 +633,63 @@ This is pretty similar to what we've done in the map component, the only new thi
 [meteor-npm-support]: http://guide.meteor.com/using-npm-packages.html
 [meteor-scope-jquery]: http://guide.meteor.com/blaze.html#scope-dom-lookups-to-instance
 
+## Writing Tests for the Place Search Component
+
+Now, before we actually wire up this component into the rest of the app, let's write some tests for it. I'm going to omit the import and setup code here for brevity and focus on the actual test cases. You can find the full test in the [repository][PlaceSearch.tests.js]. 
+
+First, let's write some tests to ensure that both our form fields are present:
+
+```javascript
+  it('has a "keyword" input', function() {
+    withRenderedTemplate('PlaceSearch', {}, el => {
+      chai.assert.equal($(el).find('input[name=keyword]').length, 1);
+    });
+  });
+
+  it('has a "type" dropdown', function() {
+    withRenderedTemplate('PlaceSearch', {}, el => {
+      chai.assert.equal($(el).find('select[name=type]').length, 1);
+    });
+  });
+```
+
+Next, we're going to write some tests to ensure that the callback is called when we expect it (i.e. when one of the inputs has changed):
+
+```javascript
+  it('calls "onQueryChanged" when keyword has changed', function(done) {
+    const data = {
+      onQueryChanged(query) {
+        chai.assert.equal(query.keyword, 'test');
+        done();
+      }
+    };
+
+    withRenderedTemplate('PlaceSearch', data, el => {
+      $(el).find('input[name=keyword]').val('test').change();
+    });
+  });
+
+  it('calls "onQueryChanged" when type has changed', function(done) {
+    const data = {
+      onQueryChanged(query) {
+        chai.assert.equal(query.type, 'airport');
+        done();
+      }
+    };
+
+    withRenderedTemplate('PlaceSearch', data, el => {
+      $(el).find('select[name=type]').val('airport').change();
+    });
+  });
+```
+
+Note we're making use of [Mocha's support for asynchronous code][mocha-async] here. Let's quickly check our test runner to make sure everything is in order:
+
+![](images/meteor-test-placesearch.png)
+
+Looks like we're good to go.
+
+[PlaceSearch.tests.js]: imports/ui/components/PlaceSearch/client/PlaceSearch.tests.js
+[mocha-async]: https://mochajs.org/#asynchronous-code
+
 To be continued...
