@@ -156,28 +156,32 @@ Now, let's create a [Blaze component][meteor-blaze-components] to use that map. 
 
 	mkdir imports/ui/components/map
 	
-The component has two parts: a (HTML) template and some JavaScript. First, here's the template, `imports/ui/components/map/map.html`:
+The component has two parts: a (HTML) template and some JavaScript. First, here's the template, `imports/ui/components/Map/Map.html`:
 
-	<template name="map">
+	<template name="Map">
       <div class="map-container">
         {{> googleMap name="map" options=mapOptions}}
       </div>
     </template>
 
-And here's the JavaScript part, `imports/ui/components/map/map.js`:
+> **NOTE** 
+>
+> As a convention, I'm going to be naming all of my components starting with an uppercase letter, while I'm going to be naming my pages starting with a lowercase letter.
+
+Now, here's the JavaScript part, `imports/ui/components/Map/Map.js`:
 
 	import { Meteor } from 'meteor/meteor';
 	import { Template } from 'meteor/templating';
 	
-	import './template.html';
+	import './Map.html';
 	
-	Template.map.onRendered(function() {
+	Template.Map.onRendered(function() {
 	  GoogleMaps.load({
 	    key: Meteor.settings.public.googleApiKey
 	  });
 	})
 	
-	Template.map.helpers({
+	Template.Map.helpers({
 	  mapOptions() {
 	    const { center, zoom } = Template.currentData();
 	
@@ -218,14 +222,14 @@ Now we'll have to stop our currently running server and restart it again by typi
 And we're off to the races again. Now, all we have left to do is use our new component. First, we will add it to our `imports/startup/client/index.js` file so it is available in our app:
 
 	// components
-	import '../../ui/components/map/map.js';
+	import '../../ui/components/Map/Map.js';
 
 Then, we'll add it to our "home" template by modifiying it as follows:
 
 	<template name="home">
 	  Hello from the import side
 	
-	  {{> map center=mapCenter zoom=defaultZoom}}
+	  {{> Map center=mapCenter zoom=defaultZoom}}
 	</template>
 
 Finally, we need to add some helpers for this template, to pass in the map center and the default zoom level. We need to create a new file, `imports/ui/pages/home.js` with the following content:
@@ -265,7 +269,7 @@ Here's what you should be seeing now in your browser:
 
 So, we've finally achieved some significant functionality. Time to write a test! Again, we'll take a [page from the Meteor Guide][meteor-unit-test] and implement a simple unit test for our component. Before we do this, we'll need to add the [`imports/ui/test-helpers.js`][meteor-test-helper] mentioned in that guide. I won't reproduce the file here, since you can find it at the link above.
 
-Now we can go ahead and write the test in `imports/ui/components/map/client/map.tests.js` as follows:
+Now we can go ahead and write the test in `imports/ui/components/Map/client/Map.tests.js` as follows:
 
 	/* eslint-env mocha */
 	/* eslint-disable func-names, prefer-arrow-callback */
@@ -275,7 +279,7 @@ Now we can go ahead and write the test in `imports/ui/components/map/client/map.
 	import { $ } from 'meteor/jquery';
 	
 	import { withRenderedTemplate } from '../../../test-helpers.js';
-	import '../map.js';
+	import '../Map.js';
 	
 	describe('Map component', function () {
 	  it('renders correctly with simple data', function () {
@@ -283,7 +287,7 @@ Now we can go ahead and write the test in `imports/ui/components/map/client/map.
 	    const zoom = 8;
 	    const data = { center, zoom };
 	
-	    withRenderedTemplate('map', data, el => {
+	    withRenderedTemplate('Map', data, el => {
 	      chai.assert.equal($(el).find('.map-canvas').length, 1);
 	    });
 	  });

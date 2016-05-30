@@ -1,15 +1,15 @@
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 
-import './map.html';
+import './Map.html';
 
-Template.map.onRendered(function() {
+Template.Map.onRendered(function() {
   GoogleMaps.load({
     key: Meteor.settings.public.googleApiKey
   });
 })
 
-Template.map.helpers({
+Template.Map.helpers({
   mapOptions() {
     const { center, zoom } = Template.currentData();
 

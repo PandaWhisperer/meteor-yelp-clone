@@ -2,7 +2,7 @@
 import './routes.js';
 
 // components
-import '../../ui/components/map/map.js';
+import '../../ui/components/Map/Map.js';
 
 // templates
 import '../../ui/layouts/main.html';

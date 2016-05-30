@@ -6,7 +6,7 @@ import { Template } from 'meteor/templating';
 import { $ } from 'meteor/jquery';
 
 import { withRenderedTemplate } from '../../../test-helpers.js';
-import '../map.js';
+import '../Map.js';
 
 describe('Map component', function () {
   it('renders correctly with simple data', function () {
@@ -14,7 +14,7 @@ describe('Map component', function () {
     const zoom = 8;
     const data = { center, zoom };
 
-    withRenderedTemplate('map', data, el => {
+    withRenderedTemplate('Map', data, el => {
       chai.assert.equal($(el).find('.map-canvas').length, 1);
     });
   });
