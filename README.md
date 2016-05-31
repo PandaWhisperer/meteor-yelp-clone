@@ -290,6 +290,16 @@ Here's what you should be seeing now in your browser:
 
 ![](images/meteor-google-map.png)
 
+At this point, you may have noticed that the `meteor test` command is trying to warn us about still having the `autopublish` package enabled. Since we're only working on the frontend, we don't really need it anyways, so let's just remove it along with the `insecure` package (which makes all collections publicly writable by default).
+
+![](images/meteor-test-autopublish-warning.png)
+
+Simply run 
+
+	meteor remove insecure autopublish
+	
+And the warning will disappear.
+
 [react-google-maps]:https://www.fullstackreact.com/articles/react-tutorial-cloning-yelp/#routing-to-maps
 [meteor-google-maps]: https://github.com/dburles/meteor-google-maps
 [meteor-blaze-components]: http://guide.meteor.com/blaze.html#reusable-components
