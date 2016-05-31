@@ -56,10 +56,12 @@ This conveniently also adds sinon and chai for mocking and expectations.
 
 However, we have nothing to test yet, because unlike React, we don't need a dedicated app container. Meteor already does that for us. We can, however, already configure our `package.json` so we can run our tests easily by typing `npm test`. In order to do that, we simply add the following line to the `"scripts"` section:
 
-    "scripts": {
-      "start": "meteor run",
-      "test": "meteor test --driver-package=practicalmeteor:mocha --port 3030"
-    }
+```json
+  "scripts": {
+    "start": "meteor run",
+    "test": "meteor test --driver-package=practicalmeteor:mocha --port 3030"
+  }
+```
 
 The `meteor test` command needs us to specify the driver package (there are [several different ones available][meteor-test-driver-packages]). Since the [`practicalmeteor:mocha`][practicalmeteor:mocha] package includes an HTML test runner that will display all of our tests in a browser, it actually starts a full Meteor server. Because our app is already running on port 3000, we'll have to tell it to run on a different port.
 
@@ -91,50 +93,60 @@ We'll also need a way to route different URLs to different views, therefore we r
 
 Again, going with the recommendation, we'll store our routes in `imports/startup/client/routes.js`. We'll start with just one route for the main URL, which we'll call home.
 
-    import { FlowRouter } from 'meteor/kadira:flow-router'
-    import { BlazeLayout } from 'meteor/kadira:blaze-layout';
+```javascript
+import { FlowRouter } from 'meteor/kadira:flow-router'
+import { BlazeLayout } from 'meteor/kadira:blaze-layout';
 
-    FlowRouter.route('/', {
-      name: 'home',
-      action() {
-        BlazeLayout.render("mainLayout", { content: "home" });
-      }
-    });
+FlowRouter.route('/', {
+  name: 'home',
+  action() {
+    BlazeLayout.render("mainLayout", { content: "home" });
+  }
+});
+```
 
 This creates a route named "home", which renders a template named "home" within a layout named "mainLayout". Now we just need to create those two files. Let's start with the layout, which we'll store in `imports/ui/layouts/main.html`:
 
-    <template name="mainLayout">
-      <header>
-        {{>Template.dynamic template=header}}
-      </header>
+```handlebars
+<template name="mainLayout">
+  <header>
+    {{>Template.dynamic template=header}}
+  </header>
 
-      <main>
-        {{>Template.dynamic template=content}}
-      </main>
+  <main>
+    {{>Template.dynamic template=content}}
+  </main>
 
-      <footer>
-        {{>Template.dynamic template=footer}}
-      </footer>
-    </template>
+  <footer>
+    {{>Template.dynamic template=footer}}
+  </footer>
+</template>
+```
 
 And now here's our "home" template, `imports/ui/pages/home.html` (don't worry about the missing templates for header and footer for now, we'll be adding those later):
 
-    <template name="home">
-      Hello from the import side
-    </template>
+```handlebars
+<template name="home">
+  Hello from the import side
+</template>
+```
 
 I know, we've going for a dangerously long time now without seeing anything happen in the browser, so let's fix that right now. For this purpose, we'll create a file named `imports/startup/client/index.js` with the following contents:
 
-    // routes
-    import './routes.js';
+```javascript
+// routes
+import './routes.js';
 
-    // templates
-    import '../../ui/layouts/main.html';
-    import '../../ui/pages/home.html';
+// templates
+import '../../ui/layouts/main.html';
+import '../../ui/pages/home.html';
+```
 
 This file basically pulls together all the stuff we need on the client, so we can easily import it in our `client/main.js` file. Now we simply delete all the pre-generated content in that file and simply replace it with this line:
 
-    import '/imports/startup/client';
+```javascript
+import '/imports/startup/client';
+```
 
 We'll also have to delete the default `client/main.html`, because otherwise, Meteor will still end up rendering that.
 
@@ -158,11 +170,13 @@ Now, let's create a [Blaze component][meteor-blaze-components] to use that map. 
 	
 The component has two parts: a (HTML) template and some JavaScript. First, here's the template, `imports/ui/components/Map/Map.html`:
 
-	<template name="Map">
-      <div class="map-container">
-        {{> googleMap name="map" options=mapOptions}}
-      </div>
-    </template>
+```handlebars
+<template name="Map">
+  <div class="map-container">
+    {{> googleMap name="map" options=mapOptions}}
+  </div>
+</template>
+```
 
 > **NOTE** 
 >
@@ -170,46 +184,52 @@ The component has two parts: a (HTML) template and some JavaScript. First, here'
 
 Now, here's the JavaScript part, `imports/ui/components/Map/Map.js`:
 
-	import { Meteor } from 'meteor/meteor';
-	import { Template } from 'meteor/templating';
+```javascript
+import { Meteor } from 'meteor/meteor';
+import { Template } from 'meteor/templating';
 	
-	import './Map.html';
+import './Map.html';
 	
-	Template.Map.onRendered(function() {
-	  GoogleMaps.load({
-	    key: Meteor.settings.public.googleApiKey
-	  });
-	})
+Template.Map.onRendered(function() {
+  GoogleMaps.load({
+    key: Meteor.settings.public.googleApiKey
+  });
+})
 	
-	Template.Map.helpers({
-	  mapOptions() {
-	    const { center, zoom } = Template.currentData();
+Template.Map.helpers({
+  mapOptions() {
+    const { center, zoom } = Template.currentData();
 	
-	    if (GoogleMaps.loaded()) {
-	      return {
-	        center: new google.maps.LatLng(center.lat, center.lng),
-	        zoom: zoom
-	      };
-	    }
-	  }
-	})
+    if (GoogleMaps.loaded()) {
+      return {
+        center: new google.maps.LatLng(center.lat, center.lng),
+        zoom: zoom
+      };
+    }
+  }
+})
+```
 
 Here, we are using [Meteor.settings][meteor-settings] to inject our Google API key into the component. This is Meteor's way of storing configuration data. In order for this to work, we'll need to create a settings file, and then point the server to that file when we start it. Let's do that now.
 
 First, here's the settings file, `settings/development.json`:
 
-	{
-	  "public": {
-	    "googleApiKey": "YOUR_GOOGLE_API_KEY_HERE"
-	  }
-	}
+```json
+{
+  "public": {
+    "googleApiKey": "YOUR_GOOGLE_API_KEY_HERE"
+  }
+}
+```
 
 Now, in order to have the server load this file on startup, we need to run it with the `--settings=settings/development.json` option. Since we don't want to have to remember to do that every time, we'll just put this into the `scripts` section of our `package.json`.
 
-    "scripts": {
-	  "start:dev": "meteor run --settings=settings/development.json",
-	  "test": "meteor test --settings=settings/test.json --driver-package=practicalmeteor:mocha --port 3030"
-	}
+```json
+"scripts": {
+  "start:dev": "meteor run --settings=settings/development.json",
+  "test": "meteor test --settings=settings/test.json --driver-package=practicalmeteor:mocha --port 3030"
+}
+```
 
 As you can see, we also added this option to our `npm test` script, so that our tests have access to the settings as well. For now, the `settings/test.json` file is simply a copy of `settings/development.json`. 
 
@@ -221,40 +241,50 @@ Now we'll have to stop our currently running server and restart it again by typi
     
 And we're off to the races again. Now, all we have left to do is use our new component. First, we will add it to our `imports/startup/client/index.js` file so it is available in our app:
 
-	// components
-	import '../../ui/components/Map/Map.js';
+```javascript
+// components
+import '../../ui/components/Map/Map.js';
+```
 
 Then, we'll add it to our "home" template by modifiying it as follows:
 
-	<template name="home">
-	  Hello from the import side
+```handlebars
+<template name="home">
+  Hello from the import side
 	
-	  {{> Map center=mapCenter zoom=defaultZoom}}
-	</template>
+  {{> Map center=mapCenter zoom=defaultZoom}}
+</template>
+```
 
 Finally, we need to add some helpers for this template, to pass in the map center and the default zoom level. We need to create a new file, `imports/ui/pages/home.js` with the following content:
 
-	import { Template } from 'meteor/templating';
+```javascript
+import { Template } from 'meteor/templating';
 	
-	import './home.html';
+import './home.html';
 	
-	Template.home.helpers({
-	  mapCenter() {
-	    return { lat: -37.8136, lng: 144.9631 }
-	  },
+Template.home.helpers({
+  mapCenter() {
+    return { lat: -37.8136, lng: 144.9631 }
+  },
 	
-	  defaultZoom() {
-	    return 8
-	  }
-	})
+  defaultZoom() {
+    return 8
+  }
+})
+```
 
 Now, back in `imports/startup/client/index.js`, we simply change the line
 
-    import '../../ui/pages/home.html';
+```javascript
+import '../../ui/pages/home.html';
+```
 
 to end in `.js` instead of `.html`:
 
-	import '../../ui/pages/home.js';
+```javascript
+import '../../ui/pages/home.js';
+```
 
 Here's what you should be seeing now in your browser:
 
@@ -271,27 +301,29 @@ So, we've finally achieved some significant functionality. Time to write a test!
 
 Now we can go ahead and write the test in `imports/ui/components/Map/client/Map.tests.js` as follows:
 
-	/* eslint-env mocha */
-	/* eslint-disable func-names, prefer-arrow-callback */
+```javascript
+/* eslint-env mocha */
+/* eslint-disable func-names, prefer-arrow-callback */
 	
-	import { chai } from 'meteor/practicalmeteor:chai';
-	import { Template } from 'meteor/templating';
-	import { $ } from 'meteor/jquery';
+import { chai } from 'meteor/practicalmeteor:chai';
+import { Template } from 'meteor/templating';
+import { $ } from 'meteor/jquery';
 	
-	import { withRenderedTemplate } from '../../../test-helpers.js';
-	import '../Map.js';
+import { withRenderedTemplate } from '../../../test-helpers.js';
+import '../Map.js';
 	
-	describe('Map component', function () {
-	  it('renders correctly with simple data', function () {
-	    const center = { lat: -37.8136, lng: 144.9631 };
-	    const zoom = 8;
-	    const data = { center, zoom };
+describe('Map component', function () {
+  it('renders correctly with simple data', function () {
+    const center = { lat: -37.8136, lng: 144.9631 };
+    const zoom = 8;
+    const data = { center, zoom };
 	
-	    withRenderedTemplate('Map', data, el => {
-	      chai.assert.equal($(el).find('.map-canvas').length, 1);
-	    });
-	  });
-	});
+    withRenderedTemplate('Map', data, el => {
+      chai.assert.equal($(el).find('.map-canvas').length, 1);
+    });
+  });
+});
+```
 
 If you did everything right, the test runner should now show a passing test:
 
@@ -306,52 +338,58 @@ Next, we want our Map component to be able to search for and display places matc
 
 We'll start by changing the `onRendered` callback in our Map component to load the places API alongside with Google Maps. We'll also store the `map` object that the API returns in a [`ReactiveVar`][meteor-reactive-var] that's scoped to the template:
 
-    import { ReactiveVar } from 'meteor/reactive-var';
+```javascript
+import { ReactiveVar } from 'meteor/reactive-var';
     
-    Template.Map.onCreated(function () {
-	  this.map = new ReactiveVar();
-	})
+Template.Map.onCreated(function () {
+  this.map = new ReactiveVar();
+})
 
-	Template.Map.onRendered(function() {
-	  GoogleMaps.load({
-	    key: Meteor.settings.public.googleApiKey,
-	    libraries: 'places'
-	  });
+Template.Map.onRendered(function() {
+  GoogleMaps.load({
+    key: Meteor.settings.public.googleApiKey,
+    libraries: 'places'
+  });
 	
-	  GoogleMaps.ready('map', (map) => {
-	    this.map.set(map);
-	  });
-	})
+  GoogleMaps.ready('map', (map) => {
+    this.map.set(map);
+  });
+})
+```
 
 This ensures that whenever the `GoogleMaps.ready()` callback is called, the `map` instance is attached to the template, and anything that depends on it will automatically be re-computed thanks to [Meteor's reactivity tracker][meteor-tracker].
 
 Now, we'll create a helper function to let us run an arbitrary query against a given Google Maps object (this will be a private function, so just drop it at the bottom of `Map.js`):
 	
-	function searchNearby(map, query) {
-	  const service = new google.maps.places.PlacesService(map.instance);
+```javascript
+function searchNearby(map, query) {
+  const service = new google.maps.places.PlacesService(map.instance);
 	
-	  service.nearbySearch(query, (results, status, pagination) => {
-	    if (status == google.maps.places.PlacesServiceStatus.OK) {
-	      console.log(results)
-	    } else {
-	      console.log(status)
-	    }
-	  })
-	}
+  service.nearbySearch(query, (results, status, pagination) => {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      console.log(results)
+    } else {
+      console.log(status)
+    }
+  })
+}
+```
 	
 As you can see, this function creates a new `PlaceService` instance and runs the query against that. When the results are ready, a callback is called that prints them out to the terminal. We can immediately test this by adding the following code to the bottom of our `onCreated` callback:
 
-	this.autorun(() => {
-	  const map = this.map.get();
-	  const query = { 
-		center: map.options.center,
-		radius: 500,
-		type: 'cafe'
-      };
-	  if (map) {
-	    searchNearby(map, query);
-	  }
-	})
+```javascript
+this.autorun(() => {
+  const map = this.map.get();
+  const query = { 
+	center: map.options.center,
+	radius: 500,
+	type: 'cafe'
+  };
+  if (map) {
+    searchNearby(map, query);
+  }
+})
+```
 	
 Using `this.autorun()` ensures that Meteor will automatically detect any reactive dependencies used in the callback (that's why we made `this.map` a `ReactiveVar`) and re-run the callback when those dependencies change.
 
@@ -368,76 +406,86 @@ Now that we have a basic place search functionality going, it would be cool if o
 
 First, we'll create a couple more helper functions to work with markers (we'll add them to the end of our `imports/ui/components/Map/Map.js` file):
 
-	// Creates a marker from a place, but doesn't add it to a map
-	function createMarker(place) {
-	  return new google.maps.Marker({
-	    position: place.geometry.location,
-	    title: place.name
-	  });
-	}
+```javascript
+// Creates a marker from a place, but doesn't add it to a map
+function createMarker(place) {
+  return new google.maps.Marker({
+    position: place.geometry.location,
+    title: place.name
+  });
+}
 	
-	// Adds a marker to the given map
-	function addMarker(map, marker) {
-	  if (!(marker instanceof google.maps.Marker)) {
-	    marker = createMarker(marker);
-	  }
-	  marker.setMap(map.instance);
+// Adds a marker to the given map
+function addMarker(map, marker) {
+  if (!(marker instanceof google.maps.Marker)) {
+    marker = createMarker(marker);
+  }
+  marker.setMap(map.instance);
 	
-	  return marker;
-	}
+  return marker;
+}
 	
-	// Removes a marker from a map
-	function removeMarker(marker) {
-	  marker.setMap(null);
-	}
+// Removes a marker from a map
+function removeMarker(marker) {
+  marker.setMap(null);
+}
+```
 
 It's worthwile to note that the `addMarker` function is flexible and will accept a place object instead of a marker as its second argument for convenience. 
 
 Now, we want our `searchNearby` function to create place markers whenever there are results available. However, in the interest of not letting this function become too complex, we'll handle this a bit differently. First, we'll add another `ReactiveVar` to our component. This one will store the place results. 
 
-	Template.Map.onCreated(function () {
-	  this.map = new ReactiveVar();
-	  this.places = new ReactiveVar([]);
-	  
-	  this.autorun(() => { /* ... */ });
-	})
+```javascript
+Template.Map.onCreated(function () {
+  this.map = new ReactiveVar();
+  this.places = new ReactiveVar([]);
+  
+  this.autorun(() => { /* ... */ });
+})
+```
 	
 Next, we'll update the `searchNearby` function to store the results in this variable. We'll simply pass in the `ReactiveVar` as a third parameter, and have the function update its contents like this:
 
-	function searchNearby(map, query, places) {
-	  const service = new google.maps.places.PlacesService(map.instance);
+```javascript
+function searchNearby(map, query, places) {
+  const service = new google.maps.places.PlacesService(map.instance);
 	
-	  service.nearbySearch(query, (results, status, pagination) => {
-	    if (status == google.maps.places.PlacesServiceStatus.OK) {
-	      console.log(results)
-	      places.set(results)
-	    } else {
-	      console.log(status)
-	    }
-	  })
-	}
+  service.nearbySearch(query, (results, status, pagination) => {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      console.log(results)
+      places.set(results)
+    } else {
+      console.log(status)
+    }
+  })
+}
+```
 
 Now, we change our `this.autorun()` callback to pass this parameter along:
 
-      if (map) {
-	    searchNearby(map, query, this.places);
-	  }
+```javascript
+ if (map) {
+   searchNearby(map, query, this.places);
+ }
+```
 
 > **NOTE**
 >
 > It it important to realize that even though `this.places` is a `ReactiveVar`, simply passing it along as a reference to `searchNearby` does NOT cause the `autorun` callback to be re-evaluated. A dependency is only created if we call `.get()` on that variable. Otherwise, we would be creating an endless loop here.
 
 Next, we'll want to create place markers each there are new place results. For this, we'll add another `this.autorun()` block to our `onCreated` callback:
-	
-	  // automatically add markers to map when places have changed
-	  let markers = [];
-	  this.autorun(() => {
-	    const map = this.map.get();
-	    const places = this.places.get();
-	    // remove old markers from map before adding new ones
-	    markers.forEach((marker) => removeMarker(marker));
-	    markers = places.map((place) => addMarker(map, place));
-	  })
+
+```javascript	
+  // automatically add markers to map when places have changed
+  let markers = [];
+  this.autorun(() => {
+    const map = this.map.get();
+    const places = this.places.get();
+    // remove old markers from map before adding new ones
+    markers.forEach((marker) => removeMarker(marker));
+    markers = places.map((place) => addMarker(map, place));
+  })
+```
 	  
 This block depends on both the `this.map` and the `this.places` reactive vars (it is helpful to declare them at the top of the block so the dependencies are immediately obvious). Since we'll have to remove the old markers before adding new ones (otherwise, the old ones will stay around forever, crowding up the map), we need to store them somewhere. We use a local variable called `markers` for this purpose, whose contents we overwrite each time the block is re-evaluated. Note that this variable has to be declared *outside* the callback. 
 
