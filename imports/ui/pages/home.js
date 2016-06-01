@@ -12,6 +12,6 @@ Template.home.helpers({
   },
 
   query() {
-    return { radius: '500', types: ['cafe'] }
+    return { type: 'cafe' }
   }
 })

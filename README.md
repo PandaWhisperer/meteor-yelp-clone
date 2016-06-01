@@ -451,7 +451,7 @@ Template.Map.onCreated(function () {
   this.places = new ReactiveVar([]);
   
   this.autorun(() => { /* ... */ });
-})
+});
 ```
 	
 Next, we'll update the `searchNearby` function to store the results in this variable. We'll simply pass in the `ReactiveVar` as a third parameter, and have the function update its contents like this:
@@ -467,7 +467,7 @@ function searchNearby(map, query, places) {
     } else {
       console.log(status)
     }
-  })
+  });
 }
 ```
 
@@ -494,7 +494,7 @@ Next, we'll want to create place markers each there are new place results. For t
     // remove old markers from map before adding new ones
     markers.forEach((marker) => removeMarker(marker));
     markers = places.map((place) => addMarker(map, place));
-  })
+  });
 ```
 	  
 This block depends on both the `this.map` and the `this.places` reactive vars (it is helpful to declare them at the top of the block so the dependencies are immediately obvious). Since we'll have to remove the old markers before adding new ones (otherwise, the old ones will stay around forever, crowding up the map), we need to store them somewhere. We use a local variable called `markers` for this purpose, whose contents we overwrite each time the block is re-evaluated. Note that this variable has to be declared *outside* the callback. 
@@ -507,5 +507,54 @@ If you did everything right, when your app has reloaded, you should now see the 
 >
 > You'll noticed I've changed the default zoom setting here, so we can actually tell the different markers apart. Since we did a radius search, Google will prioritize places that are closes to the center of the map to those that are further away. The zoom level in this picture is set to `15`, which can be changed in `imports/ui/pages/home.js`.
 	
+Finally, in order for our component to be even more useful, we want it to be able to communicate with the outside world. For instance, instead of using a static query, we'd like the ability to pass in a query through the [template parameters][meteor-template-params], and when the search results are available, have a callback called with the new results.
+
+For the first part, all we have to do is change the first `autorun()` block as follows:
+
+```javascript
+  // automatically search places if query has changed
+  this.autorun(() => {
+    const map = this.map.get();
+    const { query } = Template.currentData();
+
+    if (map && query) {
+      query.bounds = map.instance.getBounds();
+      searchNearby(map, query, this.places);
+    }
+  });
+```
+
+This code simply extracts the `query` object from the template's data using [`Template.currentData()`][meteor-template-currentData], and if both the `map` and the `query` are defined, runs our `searchNearby` function to retrieve the results. Note that I've also changed the search to apply to only the visible map area, instead of doing a radius search around the map's center. This changes the sort order a bit, but ensures that all places will always be in the visible part of the map.
+
+Finally, in order to notify outside observer about our changes, we'll add *another* `this.autorun()` block inside our `onCreated` callback. This one reads as follows:
+
+```javascript
+  // notify observers when places have changed
+  const { onPlacesChanged } = Template.currentData();
+  this.autorun(() => {
+    const places = this.places.get();
+    typeof onPlacesChanged === 'function' && onPlacesChanged(places);
+  });
+```
+
+In other words, whenever the the `this.places` reactive variable has been updated, *and* the `onPlacesChanged` template parameter is a function, we call that function with the new list of places.
+
+Finally, we need to update our `home` template to pass in a query from the outside, so we can still see the map populate. Change the line in `imports/ui/pages/home.html` that loads our map component to read as follows:
+
+```handlebars
+  {{> Map center=mapCenter zoom=defaultZoom query=query}}
+```
+
+Then add the following helper to `imports/ui/pages/home.js`:
+
+```javascript
+  query() {
+    return { type: 'cafe' }
+  }
+```
+Now the app should load and behave just like before, although it may show slightly different results (because we changed from a radius search to a map bounds search).
+
+[meteor-template-params]: http://guide.meteor.com/blaze.html#inclusion
+[meteor-template-currentData]: http://docs.meteor.com/api/templates.html#Template-currentData
 
 To be continued...
