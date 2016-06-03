@@ -1,6 +1,6 @@
 import { Template } from 'meteor/templating';
 import { humanize, titleize } from 'underscore.string';
-import PlaceTypes from './placeTypes.json';
+import PlaceTypes from './PlaceTypes.json';
 
 import './PlaceSearch.html';
 
