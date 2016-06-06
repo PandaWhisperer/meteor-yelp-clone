@@ -1,10 +1,11 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 
 import './home.html';
 
 Template.home.onCreated(function() {
-  this.query = new ReactiveVar({});
+  this.places = new ReactiveVar([]);
 })
 
 Template.home.helpers({
@@ -17,11 +18,19 @@ Template.home.helpers({
   },
 
   query() {
-    return Template.instance().query.get();
+    return {
+      type:    FlowRouter.getParam('category'),
+      keyword: FlowRouter.getQueryParam('keyword')
+    }
   },
 
-  queryChanged() {
-    const instance = Template.instance();
-    return (query) => { instance.query.set(query); }
+  menuItems() {
+    const places = Template.instance().places.get();
+    return places.map((place) => ({ title: place.name }));
+  },
+
+  placesChanged() {
+    const places = Template.instance().places;
+    return (results) => { places.set(results); }
   }
 })

@@ -7,3 +7,10 @@ FlowRouter.route('/', {
     BlazeLayout.render("mainLayout", { content: "home", header: "Header" });
   }
 });
+
+FlowRouter.route('/category/:category', {
+  name: 'category.show',
+  action() {
+    BlazeLayout.render("mainLayout", { content: "home", header: "Header" });
+  }
+});

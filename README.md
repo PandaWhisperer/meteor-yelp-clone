@@ -1021,4 +1021,115 @@ In your browser, this should look something like this:
 
 Make yourself another coffee, we'll be right back to wire everything up.
 
+## Wiring Up Menu and Place Search with Routes
+
+Okay, the next step is going to require us to take a step back and look at the app as a whole rather than the sum of its pieces. Our goal is to have the menu on the left display a list of place names (corresponding to the markers shown on the map), that is updated whenever we perform a new search (such as selecting a different category from the place search form). On top of that, we'll want to be able to click on a result in the menu and show more details for a place – such as its address and perhaps some photos.
+
+Rather than having the `PlaceSearch` component talk directly to the map, we'll use routes to achieve this objective. This gives us the advantage of being able to navigate through our search history using the browser's back and forward buttons, and sharing URLs with friends.
+
+Let's see how this might look like. Currently, we have two pieces of search information: category and keyword. A keyword search can be performed whether we have a category selected or not. Here's how our routes might look like:
+
+Route                           | Description
+--------------------------------+-------------------------------------
+`/?keyword=test`                | Keyword search w/o category
+`/category/:name/`              | Browse category w/o keword
+`/category/:name/?keyword=test` | Category and keyword search combined
+
+So, first we'll need to create a new route, `category.show` as follows:
+
+```javascript
+FlowRouter.route('/category/:category', {
+  name: 'category.show',
+  action() {
+    BlazeLayout.render("mainLayout", { content: "home", header: "Header" });
+  }
+});
+```
+
+You'll notice the route looks exactly the same as our existing one, save for the name and path. This is because parameters in the path have to be defined explicitly. Also, note that query parameters *don't* have to be defined explicitly. 
+
+Next, we'll update the `imports/ui/pages/home.html` template to pass a `menuItems` parameter to our `Menu` component. We'll also pass an `onPlacesChanged` callback to our `Map` component. 
+
+```handlebars
+<template name="home">
+  <div class="pure-g">
+    <div class="pure-u-1-3">
+      {{> Menu menuItems=menuItems}}
+    </div>
+    <div class="pure-u-2-3">
+      {{> Map center=mapCenter zoom=defaultZoom query=query onPlacesChanged=placesChanged}}
+    </div>
+  </div>
+</template>
+```
+
+Next, we'll create those two new helpers we just used in the template (in `imports/ui/pages/home.js`. But first, we'll need a new `ReactiveVar` to store the current places. We can also get rid of the old `query` variable, because we're no longer going to use it. Don't forget to import `FlowRouter` so we can use it:
+
+```javascript
+import { FlowRouter } from 'meteor/kadira:flow-router';
+
+Template.home.onCreated(function() {
+  this.places = new ReactiveVar([]);
+});
+```
+
+Now, we can change the `query` helper to take its parameters from the current route, and add the other two helpers we need as follows:
+
+```javascript
+Template.home.helpers({
+  // ... removed for brevity ...
+
+  query() {
+    return {
+      type:    FlowRouter.getParam('category'),
+      keyword: FlowRouter.getParam('keyword')
+    }
+  },
+  
+  menuItems() {
+    const places = Template.instance().places.get();
+    return places.map((place) => ({ title: place.name }));
+  },
+
+  placesChanged() {
+    const places = Template.instance().places;
+    return (results) => { places.set(results); }
+  }
+});
+```
+
+The `placesChanged()` helper returns a *function* that takes some results and stores it in an instance variable called `places`. The `menuItems()` helper takes those results and transforms them into a format that the `Menu` component can understand.
+
+Finally, we'll have to update the `Header` component so that when the query changes, it will update the current route appropriately:
+
+```javascript
+import { Template } from 'meteor/templating';
+import { FlowRouter } from 'meteor/kadira:flow-router';
+
+import './Header.html';
+
+Template.Header.onCreated(function() {
+  this.setQuery = (query) =>
+    FlowRouter.go(query.type ? 'category.show' : 'home',
+      { category: query.type },
+      { keyword: query.keyword });
+});
+
+Template.Header.helpers({
+  // ... title() helper omitted ...
+
+  queryChanged() {
+    const instance = Template.instance();
+    return (query) => { instance.setQuery(query); }
+  }
+});
+```
+
+As you can see, the `queryChanged()` helper returns a function that will be called with the current query, and calls another function that uses `FlowRouter.go()` to send the browser to the appropriate route (`category.show` if there is a category, and `home` otherwise), passing along the `category` parameter in the path parameters, and the `keyword` parameter in the query parameters.
+
+Finally, we just need to remove the `menuItems()` helper from `imports/ui/components/Menu/Menu.js` so that we can pass in our menu items from the home template instead. If you did everything right, your app should look something like this:
+
+![](images/meteor-basic-menu.png)
+
+
 To be continued...
