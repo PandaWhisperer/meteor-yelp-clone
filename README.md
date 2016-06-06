@@ -879,4 +879,146 @@ Also, you should have two more passing tests:
 
 Take a little break for a job well done, and then we'll continue.
 
+## Creating a Menu Component
+
+Next, we'll add a sidebar menu to our app. We'll eventually use it to show a list of places that match the current search, but for now, it will simply display static content.
+
+Here's the template:
+
+```handlebars
+<template name="Menu">
+  <div class="pure-menu">
+    {{#if title}}
+      <a class="pure-menu-heading" href="#">{{title}}</a>
+    {{/if}}
+
+    <ul class="pure-menu-list">
+      {{#each item in menuItems}}
+        <li class="pure-menu-item {{isActive item}}">
+          <a href="{{item.link}}" class="pure-menu-link">{{item.title}}</a>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</template>
+```
+
+And here's the code:
+
+
+```javascript
+import { Template } from 'meteor/templating';
+
+import './Menu.html';
+
+Template.Menu.helpers({
+  menuItems() {
+    return Template.currentData().menuItems || [
+      { title: 'Home',     link: '#' },
+      { title: 'About',    link: '#' },
+      { title: 'Services', link: '#' , active: true },
+      { title: 'Contact',  link: '#' }
+    ];
+  },
+  isActive(item) {
+    return item.active ? 'menu-item-divided pure-menu-selected' : '';
+  }
+});
+```
+
+Of course, we're going to write some tests for this as well:
+
+```javascript
+/* eslint-env mocha */
+/* eslint-disable func-names, prefer-arrow-callback */
+
+import { chai } from 'meteor/practicalmeteor:chai';
+import { Template } from 'meteor/templating';
+import { $ } from 'meteor/jquery';
+
+import { ensureElement } from '../../../test-helpers.js';
+import '../Menu.js';
+
+describe('Menu component', function() {
+  const title = 'Welp';
+  const menuItems = [
+    { title: 'Home',     link: '#' },
+    { title: 'About',    link: '#' },
+    { title: 'Services', link: '#' , active: true },
+    { title: 'Contact',  link: '#' }
+  ];
+
+  it('renders a menu', function() {
+    const data = { title, menuItems };
+    ensureElement('Menu', data, '.pure-menu');
+  });
+
+  it('has a title', function() {
+    const data = { title, menuItems };
+    ensureElement('Menu', data, '.pure-menu-heading:contains(Welp)');
+  });
+
+  it('has a list of menu items', function() {
+    const data = { title, menuItems };
+    ensureElement('Menu', data, '.pure-menu-list');
+    menuItems.forEach(item => {
+      ensureElement('Menu', data, `.pure-menu-link:contains(${item.title})`);
+    });
+  });
+});
+```
+
+Let's make sure the tests are passing:
+
+![](images/meteor-menu-tests.png)
+
+Now, for a visual test, we'll add the new component to show in our app as well. First, we'll need to add the component to our list of imports in `imports/ui/startup/client/index.js`:
+
+```javascript
+// components
+import '../../ui/components/Header/Header.js';
+import '../../ui/components/Map/Map.js';
+import '../../ui/components/Menu/Menu.js';
+import '../../ui/components/PlaceSearch/PlaceSearch.js';
+```
+
+And then, we'll update our `imports/ui/pages/home.html` template to show the Map and Menu components side-by-side (using Pure.css's [awesome grid classes][purecss-grids]):
+
+```handlebars
+<template name="home">
+  <div class="pure-g">
+    <div class="pure-u-1-3">
+      {{> Menu}}
+    </div>
+    <div class="pure-u-2-3">
+      {{> Map center=mapCenter zoom=defaultZoom query=query}}
+    </div>
+  </div>
+</template>
+```
+
+Finally, let's update our CSS so that both the menu and the map will take up all the remaining available vertical space:
+
+```css
+.app-menu {
+  height: calc(100vh - 42px);
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.map-container {
+  height: calc(100vh - 42px);
+  max-width: 100%;
+}
+```
+
+In your browser, this should look something like this:
+
+![](images/meteor-menu-component.png)
+
+[purecss-grids]: http://purecss.io/grids/
+[css-calc]: http://caniuse.com/#search=calc
+
+Make yourself another coffee, we'll be right back to wire everything up.
+
 To be continued...

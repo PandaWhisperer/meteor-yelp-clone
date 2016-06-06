@@ -16,12 +16,17 @@ main {
   font-weight: bold;
 }
 
+.app-menu {
+  height: calc(100vh - 42px);
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
 .align-right {
   float: right;
 }
 
 .map-container {
-  width: 800px;
+  height: calc(100vh - 42px);
   max-width: 100%;
-  height: 470px;
 }

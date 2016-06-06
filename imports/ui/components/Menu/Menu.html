@@ -1,0 +1,15 @@
+<template name="Menu">
+  <div class="pure-menu app-menu">
+    {{#if title}}
+      <a class="pure-menu-heading" href="#">{{title}}</a>
+    {{/if}}
+
+    <ul class="pure-menu-list">
+      {{#each item in menuItems}}
+        <li class="pure-menu-item {{isActive item}}">
+          <a href="{{item.link}}" class="pure-menu-link">{{item.title}}</a>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</template>
