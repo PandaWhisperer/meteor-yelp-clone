@@ -1,0 +1,11 @@
+<template name="Header">
+  <div class="pure-menu pure-menu-horizontal">
+    {{#if title}}
+      <a class="pure-menu-heading app-title" href="/">{{title}}</a>
+    {{/if}}
+
+    <div class="pure-menu-heading align-right">
+      {{> PlaceSearch onQueryChanged=queryChanged }}
+    </div>
+  </div>
+</template>

@@ -1,4 +1,25 @@
-/* CSS declarations go here */
+header {
+  position: fixed;
+  height: 42px;
+  width: 100%;
+  background-color: #1f8dd6;
+  z-index: 2;
+}
+
+main {
+  padding-top: 42px;
+}
+
+.app-title {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.align-right {
+  float: right;
+}
+
 .map-container {
   width: 800px;
   max-width: 100%;

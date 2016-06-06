@@ -800,6 +800,83 @@ Now, make a change in the place search component, and you should see the markers
 
 ![](images/meteor-placesearch-restaurant.png)
 
-Violà – that concludes our little excursion. 
+Violà – that concludes our little excursion.
+
+## Adding a Header component
+
+Back to our regularly scheduled programming – we're going to build a nice header component, which will hold the application title and the PlaceSearch component we've just built.
+
+Let's start with the template, `imports/ui/components/Header/Header.html`:
+
+```handlebars
+<template name="Header">
+  <div class="pure-menu pure-menu-horizontal">
+    {{#if title}}
+      <a class="pure-menu-heading app-title" href="/">{{title}}</a>
+    {{/if}}
+
+    <div class="pure-menu-heading align-right">
+      {{> PlaceSearch onQueryChanged=queryChanged }}
+    </div>
+  </div>
+</template>
+```
+
+Next, we have the JavaScript code, `imports/ui/components/Header/Header.js`:
+
+```javascript
+import { Template } from 'meteor/templating';
+
+import './Header.html';
+
+Template.Header.helpers({
+  title() {
+    return Template.currentData().title ||
+           Meteor.settings.public.appTitle;
+  }
+});
+```
+
+Everything here is pretty straighforward, the only notable thing is the `title()` helper, which does something interesting: it accesses the template's [data context][meteor-data-context] to see if a property called `title` has been passed to the template. If so, it will return that. Otherwise, it will look in the application's settings (passed in via the `--settings` command line option) for a public property named `appTitle` and return that.
+
+Finally, here are the tests for this component (in `imports/ui/components/Header/client/Header.tests.js`):
+
+```javascript
+/* eslint-env mocha */
+/* eslint-disable func-names, prefer-arrow-callback */
+
+import { chai } from 'meteor/practicalmeteor:chai';
+import { Template } from 'meteor/templating';
+import { $ } from 'meteor/jquery';
+
+import { ensureElement } from '../../../test-helpers.js';
+import '../Header.js';
+
+describe('Header component', function() {
+  const data = { title: 'Welp' };
+
+  it('has a title', function() {
+    ensureElement('Header', data, '.app-title:contains(Welp)');
+  });
+
+  it('renders a horizontal menu', function() {
+    ensureElement('Header', data, '.pure-menu.pure-menu-horizontal');
+  });
+});
+```
+
+Nothing new here either, we're simply checking that the component renders a title and a horizontal menu component (which contains the PlaceSearch component).
+
+If everything went well, your app should look something like this:
+
+![](images/meteor-header-component.png)
+
+Also, you should have two more passing tests:
+
+![](images/meteor-header-tests.png)
+
+[meteor-data-context]: http://guide.meteor.com/blaze.html#data-contexts
+
+Take a little break for a job well done, and then we'll continue.
 
 To be continued...
