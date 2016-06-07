@@ -26,7 +26,11 @@ Template.home.helpers({
 
   menuItems() {
     const places = Template.instance().places.get();
-    return places.map((place) => ({ title: place.name }));
+    return places.map((place) => ({
+      title: place.name,
+      rating: place.rating,
+      link: '#'
+    }));
   },
 
   placesChanged() {

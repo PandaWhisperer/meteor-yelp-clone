@@ -7,7 +7,12 @@
     <ul class="pure-menu-list">
       {{#each item in menuItems}}
         <li class="pure-menu-item {{isActive item}}">
-          <a href="{{item.link}}" class="pure-menu-link">{{item.title}}</a>
+          <a href="{{item.link}}" class="pure-menu-link menu-item">
+            <span class="rating align-right">
+              {{> Rating rating=item.rating}}
+            </span>
+            {{item.title}}
+          </a>
         </li>
       {{/each}}
     </ul>

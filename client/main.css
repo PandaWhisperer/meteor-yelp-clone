@@ -22,8 +22,17 @@ main {
   overflow-y: scroll;
 }
 
+.app-menu .menu-item {
+  white-space: normal;
+}
+
 .align-right {
   float: right;
+}
+
+.rating {
+  font-size: 12px;
+  line-height: 20px;
 }
 
 .map-container {
