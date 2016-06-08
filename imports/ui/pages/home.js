@@ -30,7 +30,7 @@ Template.home.helpers({
       title: place.name,
       rating: place.rating,
       link: '#'
-    }));
+    })).sort((a, b) => (b.rating||0) - (a.rating||0));
   },
 
   placesChanged() {
