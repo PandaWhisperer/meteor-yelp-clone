@@ -65,7 +65,8 @@ Template.Map.helpers({
 function createMarker(place) {
   return new google.maps.Marker({
     position: place.geometry.location,
-    title: place.name
+    title: place.name,
+    animation: google.maps.Animation.DROP
   });
 }
 
