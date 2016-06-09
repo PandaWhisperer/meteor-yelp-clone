@@ -1,9 +1,10 @@
 import { Template } from 'meteor/templating';
+import { ActiveRoute } from 'meteor/zimme:active-route';
 
 import './Menu.html';
 
 Template.Menu.helpers({
   isActive(item) {
-    return item.active ? 'menu-item-divided pure-menu-selected' : '';
+    return ActiveRoute.path(item.link) ? 'menu-item-divided pure-menu-selected' : '';
   }
 });
