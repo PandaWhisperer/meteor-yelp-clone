@@ -35,6 +35,15 @@ main {
   line-height: 20px;
 }
 
+.place-detail {
+  padding: 0 15px;
+}
+
+.price-level {
+  font-size: 14px;
+  color: #1f8dd6;
+}
+
 .map-container {
   height: calc(100vh - 42px);
   max-width: 100%;

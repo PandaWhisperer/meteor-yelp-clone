@@ -1,3 +1,23 @@
 <template name="PlaceDetail">
-  <h2>{{place.name}}</h2>
+  <div class="place-detail">
+    <h2>
+      {{place.name}}
+      <span class="price-level">
+        {{#each (priceLevel place)}}
+          <i class="fa fa-dollar"></i>
+        {{/each}}
+      </span>
+    </h2>
+
+    <p class="address">{{place.vicinity}}</p>
+
+    <h4>Photos</h4>
+    <div class="pure-g">
+      {{#each photo in place.photos}}
+        <div class="pure-u-1-4">
+          <img class="pure-img" src={{photoUrl photo}}>
+        </div>
+      {{/each}}
+    </div>
+  </div>
 </template>
