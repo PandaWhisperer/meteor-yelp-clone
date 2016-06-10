@@ -1029,11 +1029,11 @@ Rather than having the `PlaceSearch` component talk directly to the map, we'll u
 
 Let's see how this might look like. Currently, we have two pieces of search information: category and keyword. A keyword search can be performed whether we have a category selected or not. Here's how our routes might look like:
 
-Route                           | Description
---------------------------------+-------------------------------------
-`/?keyword=test`                | Keyword search w/o category
-`/category/:name/`              | Browse category w/o keword
-`/category/:name/?keyword=test` | Category and keyword search combined
+| Route                           | Description
+| --------------------------------|-------------------------------------
+| `/?keyword=test`                | Keyword search w/o category
+| `/category/:name/`              | Browse category w/o keword
+| `/category/:name/?keyword=test` | Category and keyword search combined
 
 So, first we'll need to create a new route, `category.show` as follows:
 
