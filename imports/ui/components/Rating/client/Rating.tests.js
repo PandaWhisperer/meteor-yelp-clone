@@ -6,65 +6,30 @@ import { ensureElement } from '../../../test-helpers.js';
 import '../Rating.js';
 
 describe('Rating component', function() {
+  const tests = {
+    3.2: { full: 3, half: 0, empty: 2 },
+    3.5: { full: 3, half: 1, empty: 1 },
+    3.5: { full: 3, half: 1, empty: 1 },
+    4.4: { full: 4, half: 1, empty: 0 },
+    undefined: { full: 0, half: 0, empty: 5 }
+  };
 
-  describe('with 3.2 rating', function() {
-    const data = { rating: 3.2 };
+  Object.keys(tests).forEach(function(rating) {
+    describe(`with ${rating} rating`, function() {
+      const { full, half, empty } = tests[rating];
+      const data = { rating };
 
-    it('shows three full stars', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star', 3);
-    });
+      it(`shows ${full} full star(s)`, function() {
+        ensureElement('Rating', data, 'i.fa.fa-star', full);
+      });
 
-    it('shows two empty stars', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star-o', 2);
-    });
-  });
+      it(`shows ${half} half star(s)`, function() {
+        ensureElement('Rating', data, 'i.fa.fa-star-half-o', half);
+      });
 
-  describe('with 3.5 rating', function() {
-    const data = { rating: 3.5 };
-
-    it('shows three full stars', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star', 3);
-    });
-
-    it('shows one half star', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star-half-o', 1);
-    });
-
-    it('shows one empty star', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star-o', 1);
+      it(`shows ${empty} empty star(s)`, function() {
+        ensureElement('Rating', data, 'i.fa.fa-star-o', empty);
+      });
     });
   });
-
-  describe('with 4.4 rating', function() {
-    const data = { rating: 4.4 };
-
-    it('shows four full stars', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star', 4);
-    });
-
-    it('shows one half star', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star-half-o', 1);
-    });
-
-    it('shows zero empty stars', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star-o', 0);
-    });
-  });
-
-  describe('with no rating', function() {
-    const data = { rating: undefined };
-
-    it('shows zero full stars', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star', 0);
-    });
-
-    it('shows zero half stars', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star-half-o', 0);
-    });
-
-    it('shows five empty stars', function() {
-      ensureElement('Rating', data, 'i.fa.fa-star-o', 5);
-    });
-  });
-
 });
