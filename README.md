@@ -1131,5 +1131,163 @@ Finally, we just need to remove the `menuItems()` helper from `imports/ui/compon
 
 ![](images/meteor-basic-menu.png)
 
+## Writing a Rating Component
+
+We're getting pretty close to the finish line. Can you smell victory yet? Now, it's finally time to put Font Awesome to good use. We're going to build a `Rating` component, so we can display ratings in the menu.
+
+This one is fairly simple, and since we've been getting better at testing, let's try to write the tests first:
+
+```javascript
+import { ensureElement } from '../../../test-helpers.js';
+import '../Rating.js';
+
+describe('Rating component', function() {
+  const tests = {
+    3.2:       { full: 3, half: 0, empty: 2 },
+    3.5:       { full: 3, half: 1, empty: 1 },
+    3.5:       { full: 3, half: 1, empty: 1 },
+    4.4:       { full: 4, half: 1, empty: 0 },
+    undefined: { full: 0, half: 0, empty: 5 }
+  };
+
+  Object.keys(tests).forEach(function(rating) {
+    describe(`with ${rating} rating`, function() {
+      const { full, half, empty } = tests[rating];
+      const data = { rating };
+
+      it(`shows ${full} full star(s)`, function() {
+        ensureElement('Rating', data, 'i.fa.fa-star', full);
+      });
+
+      it(`shows ${half} half star(s)`, function() {
+        ensureElement('Rating', data, 'i.fa.fa-star-half-o', half);
+      });
+
+      it(`shows ${empty} empty star(s)`, function() {
+        ensureElement('Rating', data, 'i.fa.fa-star-o', empty);
+      });
+    });
+  });
+});
+
+```
+
+Here, we're using a technique to [dynamically generate tests][mocha-dynamic-tests] based on a set of predefined test data, since otherwise, all of our tests would be fairly repetitive. The test process itself should be fairly self-explanatory: for each of the given ratings (including `undefined`, which simulates the absence of a rating), we expect the component to show a certain number of full, half, and empty stars. 
+
+We're also making use of another new feature in ES6: [template literals][es6-template-strings]. This lets us interpolate variables into string literals without awkwardly chaining them together using the `+` operator.
+
+Now that we the tests out of the way, it's time to write our component. First, here's the template, `imports/ui/components/Rating/Rating.html`:
+
+```handlebars
+<template name="Rating">
+  {{#each stars}}
+    <i class="fa fa-star"></i>
+  {{/each}}
+  {{#each halfStars}}
+    <i class="fa fa-star-half-o"></i>
+  {{/each}}
+  {{#each remainder}}
+    <i class="fa fa-star-o"></i>
+  {{/each}}
+</template>
+```
+
+Tis is pretty simple: for each of `stars`, `halfStars`, and `remainder`, we simply generate the respective star symbol using Font Awesome. Finally, here's the component's JavaScript code, `imports/ui/components/Rating/Rating.js`:
+
+```javascript
+import { Template } from 'meteor/templating';
+import './Rating.html';
+
+Template.Rating.onCreated(function() {
+  this.rating = () => Math.round( Template.currentData().rating*2 ) / 2 || 0;
+});
+
+Template.Rating.helpers({
+  stars() {
+    let rating = Template.instance().rating();
+    return new Array( Math.floor(rating) ).fill(1);
+  },
+  halfStars() {
+    const rating = Template.instance().rating();
+    return new Array( Math.ceil(rating) - Math.floor(rating) ).fill(1);
+  },
+  remainder() {
+    const rating = Template.instance().rating();
+    return new Array( 5 - Math.ceil(rating) ).fill(1);
+  }
+});
+```
+
+Two things to notice here: first, we're defining another [template instance function][meteor-template-instance-fn] named `rating` that will return the rating, [rounded to the nearest 0.5][js-round-to-nearest-half]. If no rating was provided, it will return 0.
+
+In the helpers, we're making use of a neat trick to get our template to work correctly. Since the `{{#each}}` construct expects an array, that's what we will return from the helpers. What's *inside* the array actually doesn't matter — we only make use of the length. Therefore, we simply generate an array with the required length and fill it with ones (as leaving them empty will not work). Boom! All tests are passing!
+
+![](images/meteor-rating-tests.png)
+
+Note that in the above screenshot, I've filtered the tests to only show the Rating component. You can do this by simply clicking on the headline. All the other tests are still there, they are just hidden. We're just getting to the point where we have so many tests they won't fit on a single page — certainly a good problem to have!
+
+[mocha-dynamic-tests]: https://mochajs.org/#dynamically-generating-tests
+[es6-template-strings]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+[meteor-template-instance-fn]: http://guide.meteor.com/blaze.html#attach-functions-to-instance
+[js-round-to-nearest-half]: http://stackoverflow.com/a/6138087
+
+## Integrating the Rating Component
+
+Time to make use of our fancy new component! First, let's add to our `imports/ui/startup/client/index.js` file to make it available to our app:
+
+```javascript
+// components
+// ... omitted for brevity ...
+import '../../ui/components/Rating/Rating.js';
+```
+
+Next, we'll want to pass those ratings along to the Menu component, so we update our `menuItems()` helper in `imports/ui/pages/home.js` to include the rating:
+
+```javascript
+Template.home.helpers({
+  // ... omitted for brevity ...
+  
+  menuItems() {
+    const places = Template.instance().places.get();
+    return places.map((place) => ({
+      title: place.name,
+      rating: place.rating,
+      link: '#'
+    }));
+  }
+});
+```
+
+Finally, we'll need to update the Menu component's template to include the Rating component with every link:
+
+```javascript
+      {{#each item in menuItems}}
+        <li class="pure-menu-item {{isActive item}}">
+          <a href="{{item.link}}" class="pure-menu-link menu-item">
+            <span class="rating align-right">
+              {{> Rating rating=item.rating}}
+            </span>
+            {{item.title}}
+          </a>
+        </li>
+      {{/each}}
+```
+
+Finally, we'll make some quick tweaks to our stylesheet (`client/main.css`):
+
+```css
+.app-menu .menu-item {
+  white-space: normal;
+}
+
+.rating {
+  font-size: 12px;
+  line-height: 20px;
+}
+```
+
+And voilà, we now have ratings!
+
+![](images/meteor-rating-component.png)
 
 To be continued...
