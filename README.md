@@ -1290,4 +1290,236 @@ And voilà, we now have ratings!
 
 ![](images/meteor-rating-component.png)
 
-To be continued...
+## Creating a PlaceDetail Component
+
+Alright, we're almost there. The final piece of this app is a component to show details about a place when a user clicks on in in the menu. 
+
+Because this component is mostly visual, we're going to start it off very simple, then we'll integrate it into the app, and *then* we'll make it more visually interesting.
+
+Let's start with template, `imports/ui/components/PlaceDetail/PlaceDetail.html`:
+
+```handlebars
+<template name="PlaceDetail">
+  <h2>{{place.name}}</h2>
+</template>
+```
+
+Since there are no helpers (for now), our script is equally as simple:
+
+```javascript
+import { Template } from 'meteor/templating';
+import './PlaceDetail.html';
+
+Template.PlaceDetail.helpers({});
+```
+
+Finally, no component should be without tests, so here they are:
+
+```javascript
+import { ensureElement } from '../../../test-helpers.js';
+import '../PlaceDetail.js';
+
+describe('PlaceDetail component', function() {
+  const place = {
+    name: "Moe's Tavern"
+  };
+
+  it('shows a header with the place name', function() {
+    ensureElement('PlaceDetail', { place }, "h2:contains(Moe's Tavern)");
+  });
+});
+```
+
+It's as simple as that. Now, let's move forward and integrate it into our app. First, we need to import it (in `imports/ui/startup/client/index.js`):
+
+```javascript
+// components
+// ... removed for brevity ...
+import '../../ui/components/PlaceDetail/PlaceDetail.js';
+```
+
+Next, we'll create a new route, so that we can make use of the fact that menu items are simply links: 
+
+```javascript
+FlowRouter.route('/place/:placeId', {
+  name: 'place.show',
+  action() {
+    BlazeLayout.render("mainLayout", { content: "home", header: "Header" });
+  }
+});
+```
+
+Now, we'll replace the following line in `imports/ui/pages/home.html`:
+
+```handlebars
+{{> Map center=mapCenter zoom=defaultZoom query=query onPlacesChanged=placesChanged}}
+```
+
+with this:
+
+```handlebars
+{{#if placeSelected}}
+  {{> PlaceDetail place=placeSelected}}
+{{else}}
+  {{> Map center=mapCenter zoom=defaultZoom query=query onPlacesChanged=placesChanged}}
+{{/if}}
+```
+
+This makes use of a helper called `placeSelected()`, which looks like this:
+We also update the `link` property in the `menuItems()` helper:
+
+
+```javascript
+Template.home.helpers({
+  // ... omitted for brevity ...
+  menuItems() {
+    const places = Template.instance().places.get();
+    return places.map((place) => ({
+      title: place.name,
+      rating: place.rating,
+      link: Template.instance().placePath(place)
+    })).sort((a, b) => (b.rating||0) - (a.rating||0));
+  },
+  
+  placeSelected() {
+    const placeId = Template.instance().placeId();
+    const places = Template.instance().places.get();
+
+    return places.find((place) => place.id == placeId);
+  }
+});
+```
+
+These helpers make use of two new template instance methods, `placeId()`, and `placePath()`:
+
+```javascript
+Template.home.onCreated(function() {
+  this.places = new ReactiveVar([]);
+  this.placeId = () => FlowRouter.getParam('placeId');
+  this.placePath = (place) => FlowRouter.path('place.show', { placeId: place.id });
+})
+```
+
+Let's try it out:
+
+![](images/meteor-placedetails-basic.png)
+
+Well, it's not pretty, but it works. Next, we'll make it look nice.
+
+## Styling the PlaceDetail Component
+
+Let's add some more information to the component now:
+
+```handlebars
+<template name="PlaceDetail">
+  <div class="place-detail">
+    <h2>
+      {{place.name}}
+      <span class="price-level">
+        {{#each (priceLevel place)}}
+          <i class="fa fa-dollar"></i>
+        {{/each}}
+      </span>
+    </h2>
+
+    <p class="address">{{place.vicinity}}</p>
+
+    <h4>Photos</h4>
+    <div class="pure-g">
+      {{#each photo in place.photos}}
+        <div class="pure-u-1-4">
+          <img class="pure-img" src={{photoUrl photo}}>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+</template>
+```
+
+And here are the corresponding helpers:
+
+```javascript
+Template.PlaceDetail.helpers({
+  photoUrl(photo) {
+    return 'getUrl' in photo ? photo.getUrl({
+      maxWidth: 200, maxHeight: 200
+    }) : null;
+  },
+
+  priceLevel(place) {
+    const priceLevel = place.price_level;
+    return new Array(priceLevel || 0).fill(1);
+  }
+});
+```
+
+Of course, let's not forget the tests:
+
+```javascript
+describe('PlaceDetail component', function() {
+  const place = {
+    name: "Moe's Tavern",
+    price_level: 2,
+    photos: [{
+      getUrl() { return 'moes-tavern.jpg' }
+    }],
+    vicinity: "Springfield U.S.A."
+  };
+
+  it('shows a header with the place name', function() {
+    ensureElement('PlaceDetail', { place }, "h2:contains(Moe's Tavern)");
+  });
+
+  it('shows the address of the place', function() {
+    ensureElement('PlaceDetail', { place }, ".address:contains(Springfield U.S.A.)");
+  });
+
+  it('shows the price level if available', function() {
+    ensureElement('PlaceDetail', { place }, "span.price-level .fa-dollar", 2);
+  });
+
+  it('shows photos of the place', function() {
+    ensureElement('PlaceDetail', { place }, "h4:contains(Photos)");
+    ensureElement('PlaceDetail', { place }, "img[src='moes-tavern.jpg']");
+  });
+});
+```
+
+We'll also add a bit of CSS to our `client/main.css` to make it look nice:
+
+```css
+.place-detail {
+  padding: 0 15px;
+}
+
+.price-level {
+  font-size: 14px;
+  color: #1f8dd6;
+}
+```
+
+Finally, we'd like the active link to be highlighted in the menu on the left. We'll need to install the `zimme:active-route` package for this, so let's install it:
+
+    meteor install zimme:active-route
+    
+Then, we'll update the `isActive()` helper in `imports/ui/components/Menu/Menu.js` as follows:
+
+```javascript
+import { ActiveRoute } from 'meteor/zimme:active-route';
+
+Template.Menu.helpers({
+  isActive(item) {
+    return ActiveRoute.path(item.link) ? 'menu-item-divided pure-menu-selected' : '';
+  }
+});
+```
+
+Finally, here's the end result in the browser:
+
+![](images/meteor-placedetails-styled.png)
+
+And of course, all our tests are passing:
+
+![](images/meteor-placedetails-tests.png)
+
+This concludes the tutorial for now.
