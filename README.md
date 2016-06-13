@@ -1522,4 +1522,23 @@ And of course, all our tests are passing:
 
 ![](images/meteor-placedetails-tests.png)
 
-This concludes the tutorial for now.
+## Summary and Outlook
+
+This concludes the tutorial with its initially planned scope. My goal was to get approximately feature parity with the React Tutorial on which this tutorial is based. 
+
+While writing the app, however, I did notice a variety of things that are missing or would be nice to have to make this app more useful and interesting. Depending on the feedback I get, I would like to implement one or more of the following:
+
+- A "hamburger" menu button to show/hide the menu
+- A location input to change the map location without having to drag it
+- The option to locate the user via the browser's geolocation feature
+- Automatically updating search when the map is dragged or zoomed
+- When hovering over a menu item, the corresponding map marker should be animated
+- Popup info boxes for map markers
+- A "Back to Map" link on the PlaceDetail component
+- Support for mobile devices
+- Full app integration tests
+- Anything else? [Create a new issue](https://github.com/PandaWhisperer/meteor-yelp-clone/issues/new).
+
+If you found this useful, I'd love to hear your words of appreciation, feedback, (re)-tweets, emails, shoutouts, or whatever else you got.
+
+I'm [@Panda_Whisperer](https://twitter.com/Panda_Whisperer) on Twitter.
