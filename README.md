@@ -15,7 +15,32 @@ Long story short, after scrolling forward for a bit and realizing I would still 
 [react-yelp-clone]: https://github.com/fullstackreact/react-yelp-clone
 [meteor]: https://www.meteor.com/
 
-## Creating the app
+## Overview
+
+This is a long document, so I've split it up in smaller, bite sized chunks. Here is an overview of all the steps, with links for quick access.
+
+- [Creating the App](#creating-the-app)
+- [Font Awesome](#font-awesome)
+- [Setting up Testing](#setting-up-testing)
+- [Creating the Directory Structure](#creating-the-directory-structure)
+- [Setting up Routing](#setting-up-routing)
+- [Building a Google Maps Component](#building-a-google-maps-component)
+- [Writing a Test for the Map Component](#writing-a-test-for-the-map-component)
+- [Adding Place Search to our Map Component](#adding-place-search-to-our-map-component)
+- [Adding Markers to the Map](#adding-markers-to-the-map)
+- [Excursion: Creating a PlaceSearch Component](#excursion-creating-a-place-search-component)
+- [Writing Tests for the PlaceSearch Component](#writing-tests-for-the-place-search-component)
+- [Using the PlaceSearch Component in our App](#using-the-place-search-component-in-our-app)
+- [Adding a Header Component](#adding-a-header-component)
+- [Creating a Menu Component](#creating-a-menu-component)
+- [Wiring up Menu and PlaceSearch with Routes](#wiring-up-menu-and-place-search-with-routes)
+- [Writing a Rating Component](#writing-a-rating-component)
+- [Integrating the Rating Component](#integrating-the-rating-component)
+- [Creating a PlaceDetail Component](#creating-a-placedetail-component)
+- [Styling the PlaceDetail Component](#styling-the-placedetail-component)
+- [Summary and Outlook](#summary-and-outlook)
+
+## Creating the App
 
 First, we'll ask Meteor to create a new project for us. This couldn't be any simpler:
 
@@ -802,7 +827,7 @@ Now, make a change in the place search component, and you should see the markers
 
 Violà – that concludes our little excursion.
 
-## Adding a Header component
+## Adding a Header Component
 
 Back to our regularly scheduled programming – we're going to build a nice header component, which will hold the application title and the PlaceSearch component we've just built.
 
