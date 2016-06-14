@@ -71,32 +71,48 @@ To test that this is working, we can add a little `<i class="fa fa-star"></i>` t
 
 ## Setting up Testing
 
-This is something I don't have much experience with but from what I know so far, we'll want to start with the `practicalmeteor:mocha` package.
+Testing in Meteor has drastically changed with version 1.3, and for the first time since the project's inception, there is actually official test support. For basic unit and integration tests, we'll want to start with the [`practicalmeteor:mocha`][practicalmeteor:mocha] package.
 
     meteor add practicalmeteor:mocha
 
-This conveniently also adds sinon and chai for mocking and expectations.
+This conveniently also adds [Sinon][sinon] and [Chai][chai] for mocking and expectations.
 
 ![Adding the practicalmeteor:mocha package](images/meteor-package-add-mocha.png)
 
-However, we have nothing to test yet, because unlike React, we don't need a dedicated app container. Meteor already does that for us. We can, however, already configure our `package.json` so we can run our tests easily by typing `npm test`. In order to do that, we simply add the following line to the `"scripts"` section:
+Apart from the [Mocha test framework][mocha], this package provides a driver that can be used in [Meteor's test mode][meteor-test-modes] to actually run our tests. This driver will start a separate Meteor server instance that will automatically refresh when tests are added or updated, and it displays the result in a web app in the browser.
+
+![The practicalmeteor:mocha test runner](images/meteor-test-runner.png)
+
+Because you'll usually want a Meteor server running in the development phase (so you can see the changes you're making), you'll usually want to run the `meteor test` on a different port like this:
+
+    meteor test --driver-package=practicalmeteor:mocha --port 3030
+
+You may also want to add the [`dispatch:mocha-phantomjs`][dispatch:mocha-phantomjs] package, which runs your tests in a headless browser (the famous [PhantomJS][phantomjs]) and shows the output on the console. This is useful for integrating with CI tools such as [Travis][travis-ci] or [Cirle][circle-ci]. You can run it by simly specifying this as the driver package (we also add `--once` to make it Meteor exit once the tests are done):
+
+    meteor test --once --driver-package dispatch:mocha-phantomjs --port 3030
+
+Because we don't want to have to remember this and type it each time we want to run tests, we'll set up some aliases in our `package.json`. Just update the `"scripts"` section as follows:
 
 ```json
   "scripts": {
     "start": "meteor run",
-    "test": "meteor test --driver-package=practicalmeteor:mocha --port 3030"
+    "test": "meteor test --once --driver-package dispatch:mocha-phantomjs --port 3030",
+    "test-watch": "meteor test --driver-package=practicalmeteor:mocha --port 3030"
   }
 ```
 
-The `meteor test` command needs us to specify the driver package (there are [several different ones available][meteor-test-driver-packages]). Since the [`practicalmeteor:mocha`][practicalmeteor:mocha] package includes an HTML test runner that will display all of our tests in a browser, it actually starts a full Meteor server. Because our app is already running on port 3000, we'll have to tell it to run on a different port.
+Now you can run tests on the terminal via `npm test`, and launch the web app using `npm run test:watch`. And while the React folks are still tweaking their `karma.conf.js`, we're off to the next step. Meteor: 3 - React: still 0.
 
-![The practicalmeteor:mocha test runner](images/meteor-test-runner.png)
-
-We don't have any tests yet (because there isn't really anything to test), but that will change soon.
-And while the React folks are still tweaking their `karma.conf.js`, we're off to the next step. Meteor: 3 - React: still 0.
-
+[mocha]: https://mochajs.org
+[sinon]: http://sinonjs.org
+[chai]: http://chaijs.com
+[phantomjs]: http://phantomjs.org
+[travis-ci]: https://travis-ci.org
+[circle-ci]: https://circleci.com
+[meteor-test-modes]: http://guide.meteor.com/testing.html#test-modes
 [meteor-test-driver-packages]: http://guide.meteor.com/testing.html#driver-packages
 [practicalmeteor:mocha]: https://atmospherejs.com/practicalmeteor/mocha
+[dispatch:mocha-phantomjs]: https://atmospherejs.com/dispatch/mocha-phantomjs
 
 ## Creating the Directory Structure
 
