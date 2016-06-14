@@ -24,3 +24,4 @@ dburles:google-maps
 fortawesome:fontawesome
 agustino:purecss
 zimme:active-route
+dispatch:mocha-phantomjs
