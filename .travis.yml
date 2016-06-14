@@ -5,3 +5,5 @@ before_install:
   - "meteor || curl https://install.meteor.com | /bin/sh"
 services:
   - mongodb
+env:
+  - PATH="$PATH:$HOME/.meteor"
