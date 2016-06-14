@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "start:dev": "meteor run --settings=settings/development.json",
-    "test": "meteor test --settings=settings/test.json --driver-package=practicalmeteor:mocha --port 3030"
+    "test": "meteor test --once --driver-package dispatch:mocha-phantomjs --port 3030",
+    "test:watch": "meteor test --settings=settings/test.json --driver-package=practicalmeteor:mocha --port 3030"
   },
   "dependencies": {
     "meteor-node-stubs": "~0.2.0",
