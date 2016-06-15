@@ -1,6 +1,10 @@
 # Meteor Tutorial: Building a React-Yelp-Clone Clone
 
-**NOTE:** This tutorial is a work-in-progress. This notice will be removed when it's done.
+## Status
+
+This tutorial should currently be considered to be in **beta** stage. It's mostly feature complete, but there may be some minor errors. If you find any errors (spelling or otherwise), feel free to [file an issue][new-issue]. 
+
+[![Build Status](https://travis-ci.org/PandaWhisperer/meteor-yelp-clone.svg?branch=master)](https://travis-ci.org/PandaWhisperer/meteor-yelp-clone)
 
 ## Motivation
 
@@ -1578,8 +1582,11 @@ While writing the app, however, I did notice a variety of things that are missin
 - A "Back to Map" link on the PlaceDetail component
 - Support for mobile devices
 - Full app integration tests
-- Anything else? [Create a new issue](https://github.com/PandaWhisperer/meteor-yelp-clone/issues/new).
+- Anything else? [Create a new issue][new-issue].
 
 If you found this useful, I'd love to hear your words of appreciation, feedback, (re)-tweets, emails, shoutouts, or whatever else you got.
 
-I'm [@Panda_Whisperer](https://twitter.com/Panda_Whisperer) on Twitter.
+I'm [@Panda_Whisperer][twitter] on Twitter.
+
+[new-issue]: https://github.com/PandaWhisperer/meteor-yelp-clone/issues/new
+[twitter]: https://twitter.com/Panda_Whisperer
