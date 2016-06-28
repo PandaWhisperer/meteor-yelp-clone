@@ -91,7 +91,7 @@ Because you'll usually want a Meteor server running in the development phase (so
 
     meteor test --driver-package=practicalmeteor:mocha --port 3030
 
-You may also want to add the [`dispatch:mocha-phantomjs`][dispatch:mocha-phantomjs] package, which runs your tests in a headless browser (the famous [PhantomJS][phantomjs]) and shows the output on the console. This is useful for integrating with CI tools such as [Travis][travis-ci] or [Cirle][circle-ci]. You can run it by simly specifying this as the driver package (we also add `--once` to make it Meteor exit once the tests are done):
+You may also want to add the [`dispatch:mocha-phantomjs`][dispatch:mocha-phantomjs] package, which runs your tests in a headless browser (the famous [PhantomJS][phantomjs]) and shows the output on the console. This is useful for integrating with CI tools such as [Travis][travis-ci] or [Circle][circle-ci]. You can run it by simply specifying this as the driver package (we also add `--once` to make Meteor exit once the tests are done):
 
     meteor test --once --driver-package dispatch:mocha-phantomjs --port 3030
 
