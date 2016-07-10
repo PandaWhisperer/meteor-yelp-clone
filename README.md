@@ -2,7 +2,7 @@
 
 ## Status
 
-This tutorial should currently be considered to be in **beta** stage. It's mostly feature complete, but there may be some minor errors. If you find any errors (spelling or otherwise), feel free to [file an issue][new-issue]. 
+This tutorial should currently be considered to be in **beta** stage. It's mostly feature complete, but there may be some minor errors. If you find any errors (spelling or otherwise), feel free to [file an issue][new-issue].
 
 [![Build Status](https://travis-ci.org/PandaWhisperer/meteor-yelp-clone.svg?branch=master)](https://travis-ci.org/PandaWhisperer/meteor-yelp-clone)
 
@@ -55,7 +55,7 @@ Now, we simply `cd` into the new directory and run `meteor`, and we already have
     cd meteor-yelp-clone
     meteor
 
-Compare that to the React version, which spends the first 10 minutes setting up the build environment. Granted, there isn't much to see here either, but at least there's a little button we can click on that increases a counter. Even an `npm start` script is already preconfigured for us.
+Compare that to the React version, which spends the first 10 minutes setting up the build environment. Granted, there isn't much to see here either, but at least there's a little button we can click on that increases a counter. Even an `npm start` script is already pre-configured for us.
 
 ![The default Meteor app](images/meteor-default-app.png)
 
@@ -63,7 +63,7 @@ The score so far: Meteor: 1, React: 0.
 
 ## Font Awesome
 
-Again, this is pretty simple. There's already a number of prebuilt packages available, so all we have to do here is run
+Again, this is pretty simple. There's already a number of pre-built packages available, so all we have to do here is run
 
     meteor add fortawesome:fontawesome
 
@@ -212,7 +212,7 @@ So, over at Fullstack React, [they are using a pre-built React component][react-
 Now, let's create a [Blaze component][meteor-blaze-components] to use that map. First, we'll need a new directory to hold the files:
 
 	mkdir imports/ui/components/map
-	
+
 The component has two parts: a (HTML) template and some JavaScript. First, here's the template, `imports/ui/components/Map/Map.html`:
 
 ```handlebars
@@ -223,7 +223,7 @@ The component has two parts: a (HTML) template and some JavaScript. First, here'
 </template>
 ```
 
-> **NOTE** 
+> **NOTE**
 >
 > As a convention, I'm going to be naming all of my components starting with an uppercase letter, while I'm going to be naming my pages starting with a lowercase letter.
 
@@ -232,19 +232,19 @@ Now, here's the JavaScript part, `imports/ui/components/Map/Map.js`:
 ```javascript
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
-	
+
 import './Map.html';
-	
+
 Template.Map.onRendered(function() {
   GoogleMaps.load({
     key: Meteor.settings.public.googleApiKey
   });
 })
-	
+
 Template.Map.helpers({
   mapOptions() {
     const { center, zoom } = Template.currentData();
-	
+
     if (GoogleMaps.loaded()) {
       return {
         center: new google.maps.LatLng(center.lat, center.lng),
@@ -276,14 +276,14 @@ Now, in order to have the server load this file on startup, we need to run it wi
 }
 ```
 
-As you can see, we also added this option to our `npm test` script, so that our tests have access to the settings as well. For now, the `settings/test.json` file is simply a copy of `settings/development.json`. 
+As you can see, we also added this option to our `npm test` script, so that our tests have access to the settings as well. For now, the `settings/test.json` file is simply a copy of `settings/development.json`.
 
 	cp settings/development.json settings/test.json
-    
+
 Now we'll have to stop our currently running server and restart it again by typing
 
     npm run start:dev
-    
+
 And we're off to the races again. Now, all we have left to do is use our new component. First, we will add it to our `imports/startup/client/index.js` file so it is available in our app:
 
 ```javascript
@@ -291,12 +291,12 @@ And we're off to the races again. Now, all we have left to do is use our new com
 import '../../ui/components/Map/Map.js';
 ```
 
-Then, we'll add it to our "home" template by modifiying it as follows:
+Then, we'll add it to our "home" template by modifying it as follows:
 
 ```handlebars
 <template name="home">
   Hello from the import side
-	
+
   {{> Map center=mapCenter zoom=defaultZoom}}
 </template>
 ```
@@ -305,14 +305,14 @@ Finally, we need to add some helpers for this template, to pass in the map cente
 
 ```javascript
 import { Template } from 'meteor/templating';
-	
+
 import './home.html';
-	
+
 Template.home.helpers({
   mapCenter() {
     return { lat: -37.8136, lng: 144.9631 }
   },
-	
+
   defaultZoom() {
     return 8
   }
@@ -339,10 +339,10 @@ At this point, you may have noticed that the `meteor test` command is trying to 
 
 ![](images/meteor-test-autopublish-warning.png)
 
-Simply run 
+Simply run
 
 	meteor remove insecure autopublish
-	
+
 And the warning will disappear.
 
 [react-google-maps]:https://www.fullstackreact.com/articles/react-tutorial-cloning-yelp/#routing-to-maps
@@ -359,20 +359,20 @@ Now we can go ahead and write the test in `imports/ui/components/Map/client/Map.
 ```javascript
 /* eslint-env mocha */
 /* eslint-disable func-names, prefer-arrow-callback */
-	
+
 import { chai } from 'meteor/practicalmeteor:chai';
 import { Template } from 'meteor/templating';
 import { $ } from 'meteor/jquery';
-	
+
 import { withRenderedTemplate } from '../../../test-helpers.js';
 import '../Map.js';
-	
+
 describe('Map component', function () {
   it('renders correctly with simple data', function () {
     const center = { lat: -37.8136, lng: 144.9631 };
     const zoom = 8;
     const data = { center, zoom };
-	
+
     withRenderedTemplate('Map', data, el => {
       chai.assert.equal($(el).find('.map-canvas').length, 1);
     });
@@ -395,7 +395,7 @@ We'll start by changing the `onRendered` callback in our Map component to load t
 
 ```javascript
 import { ReactiveVar } from 'meteor/reactive-var';
-    
+
 Template.Map.onCreated(function () {
   this.map = new ReactiveVar();
 })
@@ -405,7 +405,7 @@ Template.Map.onRendered(function() {
     key: Meteor.settings.public.googleApiKey,
     libraries: 'places'
   });
-	
+
   GoogleMaps.ready('map', (map) => {
     this.map.set(map);
   });
@@ -415,11 +415,11 @@ Template.Map.onRendered(function() {
 This ensures that whenever the `GoogleMaps.ready()` callback is called, the `map` instance is attached to the template, and anything that depends on it will automatically be re-computed thanks to [Meteor's reactivity tracker][meteor-tracker].
 
 Now, we'll create a helper function to let us run an arbitrary query against a given Google Maps object (this will be a private function, so just drop it at the bottom of `Map.js`):
-	
+
 ```javascript
 function searchNearby(map, query) {
   const service = new google.maps.places.PlacesService(map.instance);
-	
+
   service.nearbySearch(query, (results, status, pagination) => {
     if (status == google.maps.places.PlacesServiceStatus.OK) {
       console.log(results)
@@ -429,13 +429,13 @@ function searchNearby(map, query) {
   })
 }
 ```
-	
+
 As you can see, this function creates a new `PlaceService` instance and runs the query against that. When the results are ready, a callback is called that prints them out to the terminal. We can immediately test this by adding the following code to the bottom of our `onCreated` callback:
 
 ```javascript
 this.autorun(() => {
   const map = this.map.get();
-  const query = { 
+  const query = {
 	center: map.options.center,
 	radius: 500,
 	type: 'cafe'
@@ -445,7 +445,7 @@ this.autorun(() => {
   }
 })
 ```
-	
+
 Using `this.autorun()` ensures that Meteor will automatically detect any reactive dependencies used in the callback (that's why we made `this.map` a `ReactiveVar`) and re-run the callback when those dependencies change.
 
 Once you saves this change, you should be able to see your Meteor app reload automatically, and if you open your browser's JavaScript console, you'll see the results of the place search logged there:
@@ -469,42 +469,42 @@ function createMarker(place) {
     title: place.name
   });
 }
-	
+
 // Adds a marker to the given map
 function addMarker(map, marker) {
   if (!(marker instanceof google.maps.Marker)) {
     marker = createMarker(marker);
   }
   marker.setMap(map.instance);
-	
+
   return marker;
 }
-	
+
 // Removes a marker from a map
 function removeMarker(marker) {
   marker.setMap(null);
 }
 ```
 
-It's worthwile to note that the `addMarker` function is flexible and will accept a place object instead of a marker as its second argument for convenience. 
+It's worthwhile to note that the `addMarker` function is flexible and will accept a place object instead of a marker as its second argument for convenience.
 
-Now, we want our `searchNearby` function to create place markers whenever there are results available. However, in the interest of not letting this function become too complex, we'll handle this a bit differently. First, we'll add another `ReactiveVar` to our component. This one will store the place results. 
+Now, we want our `searchNearby` function to create place markers whenever there are results available. However, in the interest of not letting this function become too complex, we'll handle this a bit differently. First, we'll add another `ReactiveVar` to our component. This one will store the place results.
 
 ```javascript
 Template.Map.onCreated(function () {
   this.map = new ReactiveVar();
   this.places = new ReactiveVar([]);
-  
+
   this.autorun(() => { /* ... */ });
 });
 ```
-	
+
 Next, we'll update the `searchNearby` function to store the results in this variable. We'll simply pass in the `ReactiveVar` as a third parameter, and have the function update its contents like this:
 
 ```javascript
 function searchNearby(map, query, places) {
   const service = new google.maps.places.PlacesService(map.instance);
-	
+
   service.nearbySearch(query, (results, status, pagination) => {
     if (status == google.maps.places.PlacesServiceStatus.OK) {
       console.log(results)
@@ -530,7 +530,7 @@ Now, we change our `this.autorun()` callback to pass this parameter along:
 
 Next, we'll want to create place markers each there are new place results. For this, we'll add another `this.autorun()` block to our `onCreated` callback:
 
-```javascript	
+```javascript
   // automatically add markers to map when places have changed
   let markers = [];
   this.autorun(() => {
@@ -541,8 +541,8 @@ Next, we'll want to create place markers each there are new place results. For t
     markers = places.map((place) => addMarker(map, place));
   });
 ```
-	  
-This block depends on both the `this.map` and the `this.places` reactive vars (it is helpful to declare them at the top of the block so the dependencies are immediately obvious). Since we'll have to remove the old markers before adding new ones (otherwise, the old ones will stay around forever, crowding up the map), we need to store them somewhere. We use a local variable called `markers` for this purpose, whose contents we overwrite each time the block is re-evaluated. Note that this variable has to be declared *outside* the callback. 
+
+This block depends on both the `this.map` and the `this.places` reactive vars (it is helpful to declare them at the top of the block so the dependencies are immediately obvious). Since we'll have to remove the old markers before adding new ones (otherwise, the old ones will stay around forever, crowding up the map), we need to store them somewhere. We use a local variable called `markers` for this purpose, whose contents we overwrite each time the block is re-evaluated. Note that this variable has to be declared *outside* the callback.
 
 If you did everything right, when your app has reloaded, you should now see the map being populated with markers:
 
@@ -551,7 +551,7 @@ If you did everything right, when your app has reloaded, you should now see the 
 > **NOTE**
 >
 > You'll noticed I've changed the default zoom setting here, so we can actually tell the different markers apart. Since we did a radius search, Google will prioritize places that are closes to the center of the map to those that are further away. The zoom level in this picture is set to `15`, which can be changed in `imports/ui/pages/home.js`.
-	
+
 Finally, in order for our component to be even more useful, we want it to be able to communicate with the outside world. For instance, instead of using a static query, we'd like the ability to pass in a query through the [template parameters][meteor-template-params], and when the search results are available, have a callback called with the new results.
 
 For the first part, all we have to do is change the first `autorun()` block as follows:
@@ -604,7 +604,7 @@ Now the app should load and behave just like before, although it may show slight
 
 ## Excursion: Creating a Place Search Component
 
-At this point, I had wanted to write a test case for the place search callback behavior, but I had difficulties getting that to work. So, while the FullStack guys are moving ahead with building header and sidbar components, I decided to take a bit of a detour and make the map more interactive first, by adding a component to allow me to perform arbitrary place searches on the map.
+At this point, I had wanted to write a test case for the place search callback behavior, but I had difficulties getting that to work. So, while the FullStack guys are moving ahead with building header and sidebar components, I decided to take a bit of a detour and make the map more interactive first, by adding a component to allow me to perform arbitrary place searches on the map.
 
 Here's the idea: I want a text input field to search for keywords, and a dropdown with all the place types to narrow results by category. And in order to practice building reusable components (and exchanging data between them), I want this to be a component as well.
 
@@ -622,7 +622,7 @@ Let's start with the template, `imports/ui/components/PlaceSearch/PlaceSearch.ht
 </template>
 ```
 
-Here we can see the text input and the dropdown. The latter obviously will require a `placeTypes` helper to provide a list of place types. The [full list is available here][google-place-types]. I simply copied and pasted it from Google's Developer documentation and converted it to JSON by hand. You can see the [full JSON file here][PlaceTypes.json]. Note that all of these are lower case and contain underscores. Some of them are followed by `(*)`, which means that according to the Google docs, they are deprecated and will be removed on February 16, 2017. I left these in for now, but we'll have to treat them specially, as we'll see in just a minute. 
+Here we can see the text input and the dropdown. The latter obviously will require a `placeTypes` helper to provide a list of place types. The [full list is available here][google-place-types]. I simply copied and pasted it from Google's Developer documentation and converted it to JSON by hand. You can see the [full JSON file here][PlaceTypes.json]. Note that all of these are lower case and contain underscores. Some of them are followed by `(*)`, which means that according to the Google docs, they are deprecated and will be removed on February 16, 2017. I left these in for now, but we'll have to treat them specially, as we'll see in just a minute.
 
 Let's start with our template helpers (in `imports/ui/components/PlaceSearch/PlaceSearch.js`):
 
@@ -649,8 +649,8 @@ Sure, I could have simply used a regular expression here, but this gives us a ch
     meteor npm install --save underscore.string
 
 > **NOTE**
-> 
-> If you have Node.js installed separetely from Meteor, you can also simply run `npm install --save underscore.string`.
+>
+> If you have Node.js installed separately from Meteor, you can also simply run `npm install --save underscore.string`.
 
 Now, similar to our map component, we would like this component to run a callback whenever its internal state (in this case, the values of the form fields) changes. So lets hook that up with an event handler now:
 
@@ -680,7 +680,7 @@ This is pretty similar to what we've done in the map component, the only new thi
 
 ## Writing Tests for the Place Search Component
 
-Now, before we actually wire up this component into the rest of the app, let's write some tests for it. I'm going to omit the import and setup code here for brevity and focus on the actual test cases. You can find the full test in the [repository][PlaceSearch.tests.js]. 
+Now, before we actually wire up this component into the rest of the app, let's write some tests for it. I'm going to omit the import and setup code here for brevity and focus on the actual test cases. You can find the full test in the [repository][PlaceSearch.tests.js].
 
 First, let's write some tests to ensure that both our form fields are present:
 
@@ -732,7 +732,7 @@ Note we're making use of [Mocha's support for asynchronous code][mocha-async] he
 
 ![](images/meteor-test-placesearch.png)
 
-Looks like we're good to go. Now before we move on to the next step, let's just clean up the code a little bit. As you may have noticed, the two pairs of tests we wrote look awefully similar. 
+Looks like we're good to go. Now before we move on to the next step, let's just clean up the code a little bit. As you may have noticed, the two pairs of tests we wrote look awfully similar.
 
 From the first pair, we can extract the following helper (which we'll store in `imports/ui/test-helpers.js`:
 
@@ -828,14 +828,14 @@ Now, we just update our `query` helper, and add a `queryChanged` helper as follo
  query() {
    return Template.instance().query.get();
  },
- 
+
  queryChanged() {
    const instance = Template.instance();
    return (query) => { instance.query.set(query); }
  }
 ```
 
-Instead of a static value, `query` now simply returns the contents of the `this.query` reactive variable, so its value will automatically change when the query changes. The `queryChanged` helper, on the other hand, returns a function that will *update* said reactive variable. 
+Instead of a static value, `query` now simply returns the contents of the `this.query` reactive variable, so its value will automatically change when the query changes. The `queryChanged` helper, on the other hand, returns a function that will *update* said reactive variable.
 
 Wait for the app to reload again, and we should see our new component rendered above the map:
 
@@ -882,7 +882,7 @@ Template.Header.helpers({
 });
 ```
 
-Everything here is pretty straighforward, the only notable thing is the `title()` helper, which does something interesting: it accesses the template's [data context][meteor-data-context] to see if a property called `title` has been passed to the template. If so, it will return that. Otherwise, it will look in the application's settings (passed in via the `--settings` command line option) for a public property named `appTitle` and return that.
+Everything here is pretty straightforward, the only notable thing is the `title()` helper, which does something interesting: it accesses the template's [data context][meteor-data-context] to see if a property called `title` has been passed to the template. If so, it will return that. Otherwise, it will look in the application's settings (passed in via the `--settings` command line option) for a public property named `appTitle` and return that.
 
 Finally, here are the tests for this component (in `imports/ui/components/Header/client/Header.tests.js`):
 
@@ -1077,7 +1077,7 @@ Let's see how this might look like. Currently, we have two pieces of search info
 | Route                           | Description
 | --------------------------------|-------------------------------------
 | `/?keyword=test`                | Keyword search w/o category
-| `/category/:name/`              | Browse category w/o keword
+| `/category/:name/`              | Browse category w/o keyword
 | `/category/:name/?keyword=test` | Category and keyword search combined
 
 So, first we'll need to create a new route, `category.show` as follows:
@@ -1091,9 +1091,9 @@ FlowRouter.route('/category/:category', {
 });
 ```
 
-You'll notice the route looks exactly the same as our existing one, save for the name and path. This is because parameters in the path have to be defined explicitly. Also, note that query parameters *don't* have to be defined explicitly. 
+You'll notice the route looks exactly the same as our existing one, save for the name and path. This is because parameters in the path have to be defined explicitly. Also, note that query parameters *don't* have to be defined explicitly.
 
-Next, we'll update the `imports/ui/pages/home.html` template to pass a `menuItems` parameter to our `Menu` component. We'll also pass an `onPlacesChanged` callback to our `Map` component. 
+Next, we'll update the `imports/ui/pages/home.html` template to pass a `menuItems` parameter to our `Menu` component. We'll also pass an `onPlacesChanged` callback to our `Map` component.
 
 ```handlebars
 <template name="home">
@@ -1130,7 +1130,7 @@ Template.home.helpers({
       keyword: FlowRouter.getParam('keyword')
     }
   },
-  
+
   menuItems() {
     const places = Template.instance().places.get();
     return places.map((place) => ({ title: place.name }));
@@ -1217,7 +1217,7 @@ describe('Rating component', function() {
 
 ```
 
-Here, we're using a technique to [dynamically generate tests][mocha-dynamic-tests] based on a set of predefined test data, since otherwise, all of our tests would be fairly repetitive. The test process itself should be fairly self-explanatory: for each of the given ratings (including `undefined`, which simulates the absence of a rating), we expect the component to show a certain number of full, half, and empty stars. 
+Here, we're using a technique to [dynamically generate tests][mocha-dynamic-tests] based on a set of predefined test data, since otherwise, all of our tests would be fairly repetitive. The test process itself should be fairly self-explanatory: for each of the given ratings (including `undefined`, which simulates the absence of a rating), we expect the component to show a certain number of full, half, and empty stars.
 
 We're also making use of another new feature in ES6: [template literals][es6-template-strings]. This lets us interpolate variables into string literals without awkwardly chaining them together using the `+` operator.
 
@@ -1291,7 +1291,7 @@ Next, we'll want to pass those ratings along to the Menu component, so we update
 ```javascript
 Template.home.helpers({
   // ... omitted for brevity ...
-  
+
   menuItems() {
     const places = Template.instance().places.get();
     return places.map((place) => ({
@@ -1337,7 +1337,7 @@ And voilà, we now have ratings!
 
 ## Creating a PlaceDetail Component
 
-Alright, we're almost there. The final piece of this app is a component to show details about a place when a user clicks on in in the menu. 
+Alright, we're almost there. The final piece of this app is a component to show details about a place when a user clicks on in in the menu.
 
 Because this component is mostly visual, we're going to start it off very simple, then we'll integrate it into the app, and *then* we'll make it more visually interesting.
 
@@ -1383,7 +1383,7 @@ It's as simple as that. Now, let's move forward and integrate it into our app. F
 import '../../ui/components/PlaceDetail/PlaceDetail.js';
 ```
 
-Next, we'll create a new route, so that we can make use of the fact that menu items are simply links: 
+Next, we'll create a new route, so that we can make use of the fact that menu items are simply links:
 
 ```javascript
 FlowRouter.route('/place/:placeId', {
@@ -1425,7 +1425,7 @@ Template.home.helpers({
       link: Template.instance().placePath(place)
     })).sort((a, b) => (b.rating||0) - (a.rating||0));
   },
-  
+
   placeSelected() {
     const placeId = Template.instance().placeId();
     const places = Template.instance().places.get();
@@ -1546,7 +1546,7 @@ We'll also add a bit of CSS to our `client/main.css` to make it look nice:
 Finally, we'd like the active link to be highlighted in the menu on the left. We'll need to install the `zimme:active-route` package for this, so let's install it:
 
     meteor install zimme:active-route
-    
+
 Then, we'll update the `isActive()` helper in `imports/ui/components/Menu/Menu.js` as follows:
 
 ```javascript
@@ -1569,7 +1569,7 @@ And of course, all our tests are passing:
 
 ## Summary and Outlook
 
-This concludes the tutorial with its initially planned scope. My goal was to get approximately feature parity with the React Tutorial on which this tutorial is based. 
+This concludes the tutorial with its initially planned scope. My goal was to get approximately feature parity with the React Tutorial on which this tutorial is based.
 
 While writing the app, however, I did notice a variety of things that are missing or would be nice to have to make this app more useful and interesting. Depending on the feedback I get, I would like to implement one or more of the following:
 
