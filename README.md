@@ -267,6 +267,15 @@ First, here's the settings file, `settings/development.json`:
 }
 ```
 
+> ### Obtaining a Google API Key
+
+> In order to use the Google Maps API, you'll need an API key. If you've never done this before, here's how to get one: First, sign into the [Google Developers Console](https://console.developers.google.com/apis) with your Google Account (create one if necessary). Now, create a new project, then activate the Google Maps API for that project.
+
+> Then, copy the newly created API key and place it in your `settings/development.json` by replacing the string `YOUR_GOOGLE_API_KEY_HERE`.
+
+Restart the server if it's running so that the new settings are loaded (they only get read on startup), and maps should be working.
+
+
 Now, in order to have the server load this file on startup, we need to run it with the `--settings=settings/development.json` option. Since we don't want to have to remember to do that every time, we'll just put this into the `scripts` section of our `package.json`.
 
 ```json
